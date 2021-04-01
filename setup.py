@@ -7,5 +7,5 @@ author='#',
 author_email='#',
 license='Apache 2.0',
 packages=['backtest','backtest.defimpl'],
-package_dir={'backtest':'.','backtest.defimpl':'defimpl'},
+package_dir={'backtest':'backtest','backtest.defimpl':'defimpl'},
 zip_safe=False)
