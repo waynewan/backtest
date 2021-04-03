@@ -1,4 +1,4 @@
-from jackutil.microfunc import inrange
+from jackutil.microfunc import inrange,callable_fq_name
 from backtest.entryalgo_abc import entryalgo_abc
 from backtest import norgate_helper
 from backtest import postprocessor
@@ -25,8 +25,8 @@ class demo1_entry_algo(entryalgo_abc):
 	# --
 	def postprocessor(self):
 		pp_opt = [
-			[ 'backtest.norgate_helper.pp_ng_default',{} ],
-			[ 'demo1_entry_algo.pp_ta_ma_cross',self.__opt['pp'] ],
+			[ callable_fq_name(norgate_helper.pp_ng_default),{} ],
+			[ callable_fq_name(pp_ta_ma_cross),self.__opt['pp'] ],
 		]
 		return pp_opt
 
