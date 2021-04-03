@@ -1,13 +1,10 @@
-# --
-# -- manage multiple tradesim runs using variation of cfg
-# --
 import matplotlib.pyplot as plt
 from backtest import tradesim_store
 from backtest import tradesim
 import pandas as pd
 import numpy as np
 import random
-from jackutil.containerutil import extractValue,projectContainer,containerChecksum
+from jackutil.containerutil import cfg_to_obj,projectContainer,containerChecksum
 from tqdm.auto import tqdm
 import pprint
 
@@ -62,21 +59,6 @@ def account_profit_summary(account):
 # --
 # --
 # --
-def build_object(component_name,rtcfg,built_obj_map,**kv):
-	build_instruction = rtcfg[component_name]
-	if(component_name in built_obj_map):
-		return built_obj_map[component_name]
-	elif(isinstance(build_instruction,str)):
-		obj = build_object(build_instruction,rtcfg,built_obj_map,**kv)
-		built_obj_map[component_name] = obj
-		return obj
-	else:
-		obj_cls = build_instruction["cls"]
-		obj_opt = build_instruction["opt"]
-		obj = obj_cls(opt=obj_opt,**kv)
-		built_obj_map[component_name] = obj
-		return obj
-	
 def build_postprocessor(*pp_list):
 	pps = []
 	for pp in pp_list:
@@ -87,11 +69,11 @@ def build_postprocessor(*pp_list):
 
 def build_simulator(rtcfg):
 	built_obj_map = {}
-	entryalgo = build_object("entryalgo",rtcfg,built_obj_map)
-	exitalgo = build_object("exitalgo",rtcfg,built_obj_map)
+	entryalgo = cfg_to_obj(rtcfg,"entryalgo",built_obj_map)
+	exitalgo = cfg_to_obj(rtcfg,"exitalgo",built_obj_map)
 	pp_opt = build_postprocessor( *entryalgo.postprocessor(), *exitalgo.postprocessor())
-	universe = build_object("universe",rtcfg,built_obj_map,pp=pp_opt)
-	sysfilter = build_object("sysfilter",rtcfg,built_obj_map)
+	universe = cfg_to_obj(rtcfg,"universe",built_obj_map,pp=pp_opt)
+	sysfilter = cfg_to_obj(rtcfg,"sysfilter",built_obj_map)
 	sim_build_instr = rtcfg["simulator"]
 	return sim_build_instr["cls"](
 		opt=sim_build_instr["opt"],

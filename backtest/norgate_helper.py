@@ -126,9 +126,10 @@ def postprocessors(pp_opt):
 	# !!
 	pp_opt = json.loads(pp_opt)
 	pp_list = []
-	for fname,fopt in pp_opt:
-		func = make_callable(fname)
-		pp_list.append(functools.partial(func, **fopt))
+	for funcspec,fopt in pp_opt:
+		if(not callable(funcspec)):
+			funcspec = make_callable(funcspec)
+		pp_list.append(functools.partial(funcspec, **fopt))
 	return pp_list
 
 def load_ng_historical(symbol,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
