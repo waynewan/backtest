@@ -1,8 +1,9 @@
-from tqdm.auto import tqdm
 import math
+from tqdm.auto import tqdm
+from backtest.abc.tradesim_abc import tradesim_abc
 from .account import BrokerAccount,PositionState
 
-class Tradesim:
+class Tradesim(tradesim_abc):
 	def __init__(self,*,entryalgo,exitalgo,universe,sysfilter,opt):
 		self.__maxpos = opt["maxpos"]
 		self.__expense_ratio = opt["expense_ratio"]

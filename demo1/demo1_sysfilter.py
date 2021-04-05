@@ -1,5 +1,5 @@
 from backtest import norgate_helper as ngu
-from backtest import sysfilter_abc
+from backtest.abc import sysfilter_abc
 import pandas as pd
 # --
 # --

@@ -1,5 +1,5 @@
 from jackutil.microfunc import inrange,callable_fq_name
-from backtest.entryalgo_abc import entryalgo_abc
+from backtest.abc.entryalgo_abc import entryalgo_abc
 from backtest import norgate_helper
 from backtest import postprocessor
 import pandas as pd

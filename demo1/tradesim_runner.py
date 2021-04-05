@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from backtest import tradesim_store
-from backtest import tradesim
+from backtest import tradesim_rotational
 import pandas as pd
 import numpy as np
 import random

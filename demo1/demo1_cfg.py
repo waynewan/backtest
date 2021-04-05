@@ -1,7 +1,7 @@
 from jackutil.microfunc import str_to_dt
 from jackutil.configuration import configuration
-from backtest import tradesim,norgate_helper
-from backtest.defimpl import index_universe
+from backtest import tradesim_rotational,norgate_helper
+from backtest import index_universe
 import numpy as np
 import demo1_entry_algo,demo1_exit_algo,demo1_sysfilter
 
@@ -29,7 +29,7 @@ n100spec,s500spec,r1000spec = index_specs.all_variations()
 # --
 basespec = {
 	"simulator" : {
-		"cls" : tradesim.Tradesim,
+		"cls" : tradesim_rotational.Tradesim,
 		"opt" : {
 			"maxpos" : 30,
 			"expense_ratio" : 0.5 / 100,

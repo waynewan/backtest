@@ -1,6 +1,6 @@
 from jackutil.microfunc import str_to_dt,inrange
-from backtest.universe_abc import universe_abc
-from backtest import norgate_helper as ngu
+from backtest.abc.universe_abc import universe_abc
+from . import norgate_helper as ngu
 import datetime
 import pandas as pd
 

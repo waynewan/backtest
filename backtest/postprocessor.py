@@ -35,23 +35,3 @@ def to_df_pp_basic(acc,df):
 	df['cumprofit'] = 1 + df['profit'].cumsum() / acc.init_cash()
 	return df
 
-# --
-# -- BrokerAccount postprocessors
-# -- compute profit, cum-profit; rename some columns
-# --
-def to_df_pp_old_behavior(acc,df):
-	df0 = df.loc[:,(
-		'_Position__symbol',
-		'entry_exec_date',
-		'exit_exec_date'
-	)].copy()
-	df0.rename(columns={
-		'_Position__symbol':'symbol',
-		'entry_exec_date':'entry_date',
-		'exit_exec_date':'exit_date',
-	},inplace=True)
-	df0['profit'] = df['share'] * ( df['exit_price'] - df['entry_price'] ) - df['entry_dollar_commission'] - df['exit_dollar_commission']
-	df0.sort_values(inplace=True,by='exit_date')
-	df0['cumprofit'] = 1 + df0['profit'].cumsum() / acc.init_cash()
-	return df0
-

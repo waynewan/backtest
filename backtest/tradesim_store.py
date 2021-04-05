@@ -1,6 +1,5 @@
 import functools
 import pickle
-# import common
 import os
 from jackutil.containerutil import containerChecksum
 
