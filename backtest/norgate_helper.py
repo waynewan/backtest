@@ -178,7 +178,7 @@ def pp_ng_default(symbol,data,**kv):
 	data.drop(inplace=True,columns=['Turnover','Dividend'])
 	data.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
 	data['note'] = ""
-	data.loc[data.index[-2:].values,"note"] = "LAST_BAR"
+	data.loc[data.index[-5:].values,"note"] = "LAST_BAR"
 	data['mbr'] = 0
 	for k,v in kv.items():
 		data[k] = v
