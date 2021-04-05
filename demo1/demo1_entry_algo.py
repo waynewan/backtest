@@ -8,6 +8,7 @@ import numpy as np
 def pp_ta_ma_cross(symbol,data,*,lperiod=200,speriod=50):
 	data['ratio'] = data['Close'].rolling(lperiod).mean() / data['Close'].rolling(speriod).mean()
 	return data
+
 # --
 # --
 # --
@@ -63,9 +64,17 @@ class demo1_entry_algo(entryalgo_abc):
 		if(len(dOnly)==0):
 			return EMPTY_topCandidates_Return
 		# --
-		# -- (3) sort by ratio, higher is better
+		# -- (3) cannot trade LAST_BAR
 		# --
-		ratioOrd = dOnly.loc[:,'ratio'].sort_values(ascending=False,na_position="last").index
+		noteCol = dOnly.loc[:,'note']
+		notefiltered = noteCol[noteCol !="LAST_BAR"].index
+		dOnly = dOnly.loc[notefiltered]
+		if(len(dOnly)==0):
+			return EMPTY_topCandidates_Return
+		# --
+		# -- (4) sort by ratio, higher is better
+		# --
+		ratioOrd = dOnly.loc[:,'ratio'].sort_values(ascending=True,na_position="last").index
 		signals = self.capture_signals(ratioOrd,bars)
 		return (signals,ratioOrd)
 

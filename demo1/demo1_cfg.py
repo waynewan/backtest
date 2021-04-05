@@ -73,75 +73,8 @@ basespec = {
 		"cls" : index_universe.IndexUniverse,
 		"opt" : {
 			"indexname" : "NASDAQ 100",
-			"date_range" : [str_to_dt('2000-01-01'),str_to_dt('2020-03-31')],
+			"date_range" : [str_to_dt('2015-01-01'),str_to_dt('2020-03-31')],
 		}
 	}
 }
 
-# --
-# -- tests
-# --
-test_1 = {
-	**index_specific_setup,
-	"entryalgo/opt/op/q_pvachgratio/0" : [0.5, 0.6, 0.7, 0.8, 0.9],
-}
-test_2 = {
-	**index_specific_setup,
-	"simulator/opt/maxpos" : range(26,35,2),
-}
-test_3 = {
-	**index_specific_setup,
-	"exitalgo/opt/pp/max_pct_risk" : [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9],
-}
-test_4 = {
-	("universe/opt/indexname","sysfilter/opt/symbol") : 
-	[ 
-		("NASDAQ 100","QQQ"), 
-		("Russell 1000","IWB"),
-		("S&P 500","SPY"), 
-	],
-	"sysfilter/opt/period" : [ 10,20,50,100,200,300,400,500,600 ],
-}
-test_5 = {
-	("universe/opt/indexname","sysfilter/opt/symbol") : 
-	[ 
-		("NASDAQ 100","QQQ"), 
-		("Russell 1000","IWB"),
-		("S&P 500","SPY"), 
-	],
-	"entryalgo/opt/op/q_pvachg/0" : [ 0, 0.2, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 ],
-}
-test_6 = {
-	("universe/opt/indexname","sysfilter/opt/symbol") : 
-	[ 
-		#("NASDAQ 100","QQQ"), 
-		#("Russell 1000","IWB"),
-		("S&P 500","SPY"), 
-	],
-	"entryalgo/opt/op/q_lowratio" : [ 0.5, 0.6, 0.7, 0.8, 0.85, 0.9, 0.95 ],
-}
-# --
-# -- misc
-# --
-test_n = {
-	("universe/opt/indexname","sysfilter/opt/symbol") : 
-	[ 
-		("NASDAQ 100","QQQ"), 
-		("S&P 500","SPY"), 
-		("Russell 1000","IWB"),
-	],
-	# "simulator/opt/maxpos" : range(5,51,5),
-	# "sysfilter/opt/period" : range(50, 401, 50),
-	# "exitalgo/opt/op/max_age" : range(300, 901, 50),
-	# "exitalgo/opt/pp/period" : range(20, 101, 10),
-	# "exitalgo/opt/pp/multiple" : range(0, 41, 5),
-	# "entryalgo/opt/pp/low_ratio" : low_ratio_tuple_list_test_2_only(),
-}
-test_f_1 = {
-	("entryalgo/opt/pp/low_ratio/0","entryalgo/opt/pp/low_ratio/1") : 
-	[
-		( round(n,1) , round(n+d,1) )
-		for n in (0.0,1.0,2.0,3.0,4.0)
-		for d in (0.5,1.0,2.0,3.0,5.0)
-	]
-}
