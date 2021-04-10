@@ -19,8 +19,13 @@ index_specific_setup = {
 		("Russell 1000","IWB", 0.8),
 	],
 }
-index_specs = configuration(basespec={},variations=index_specific_setup)
-n100spec,s500spec,r1000spec = index_specs.all_variations()
+n100spec,s500spec,r1000spec = configuration(basespec={},variations=index_specific_setup).all_variations()
+
+test1 = {
+	"entryalgo/opt/pp/lperiod" : range( 190, 215, 10 ),
+	"entryalgo/opt/pp/speriod" : range(  90, 115, 10 ),
+	"simulator/opt/maxpos" : range( 10, 35, 10 )
+}
 
 # --
 # -- boiler plate
@@ -45,12 +50,8 @@ basespec = {
 		"cls" : demo1_entry_algo.demo1_entry_algo,
 		"opt" : {
 			"pp" : { 
-				'lperiod':252,
-				'speriod':22,
-			},
-			"op" : { 
-				'q_lowratio' : (0.85,1),
-				'q_pvachgratio' : (0.5,1),
+				'lperiod':200,
+				'speriod':150,
 			},
 		},
 	},
@@ -73,7 +74,7 @@ basespec = {
 		"cls" : index_universe.IndexUniverse,
 		"opt" : {
 			"indexname" : "NASDAQ 100",
-			"date_range" : [str_to_dt('2015-01-01'),str_to_dt('2020-03-31')],
+			"date_range" : [str_to_dt('2000-01-01'),str_to_dt('2020-03-31')],
 		}
 	}
 }

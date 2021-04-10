@@ -56,14 +56,6 @@ class demo1_entry_algo(entryalgo_abc):
 		if(len(dOnly)==0):
 			return EMPTY_topCandidates_Return
 		# --
-		# -- (2) only keep symbol with +ve ratio
-		# --
-		ratioCol = dOnly.loc[:,'ratio']
-		ratiofiltered = ratioCol[ratioCol>0].index
-		dOnly = dOnly.loc[ratiofiltered]
-		if(len(dOnly)==0):
-			return EMPTY_topCandidates_Return
-		# --
 		# -- (3) cannot trade LAST_BAR
 		# --
 		noteCol = dOnly.loc[:,'note']

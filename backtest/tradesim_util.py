@@ -1,4 +1,5 @@
-from jackutil.containerutil import cfg_to_obj
+from jackutil.containerutil import cfg_to_obj,extractValue
+import pandas as pd
 
 # --
 # --
@@ -34,4 +35,20 @@ def account_profit_summary(account):
 	profit = df['profit'].sum()
 	return [ profit / account.init_cash() ]
 
+def summary_extractor(*,cfg_acc_pairs,cfg_extractor,acc_extractor):
+	result = []
+	for cfg,account in cfg_acc_pairs:
+		result.append((
+			*cfg_extractor(cfg),
+			*acc_extractor(account)
+		))
+	return pd.DataFrame(result)
+
+def feature_extractor(features):
+	def fn(rtcfg):
+		values = []
+		for feature in features:
+			values.append(extractValue(rtcfg,path=feature))
+		return values
+	return fn
 
