@@ -25,10 +25,6 @@ class ListUniverse:
 		self.__universe = df.dropna(axis=1,how='all')
 		self.__universe_size = len( self.__symbols )
 
-# -- 	def inconsistent_symbol_count(self,count,threshold):
-# -- 		inconsistent = abs(1-count/self.__universe_size)>threshold
-# -- 		return inconsistent
-
 	# --
 	# -- interface
 	# --

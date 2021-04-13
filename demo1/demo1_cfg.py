@@ -22,9 +22,9 @@ index_specific_setup = {
 n100spec,s500spec,r1000spec = configuration(basespec={},variations=index_specific_setup).all_variations()
 
 test1 = {
-	"entryalgo/opt/pp/lperiod" : range( 190, 215, 10 ),
-	"entryalgo/opt/pp/speriod" : range(  90, 115, 10 ),
-	"simulator/opt/maxpos" : range( 10, 35, 10 )
+	"entryalgo/opt/pp/lperiod" : range( 190, 225, 10 ),
+	"entryalgo/opt/pp/speriod" : range(  90, 125, 10 ),
+	"simulator/opt/maxpos" : range( 30, 35, 10 )
 }
 
 # --

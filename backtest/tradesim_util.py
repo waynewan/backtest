@@ -52,3 +52,34 @@ def feature_extractor(features):
 		return values
 	return fn
 
+def loadAccountsFromStore(*,basespec,delta,cache):
+	all_rtcfg = cfg.cfg(basespec=basespec,variations=delta).expand_all()
+	cfg_acc_pairs = []
+	for rtcfg in tqdm(all_rtcfg,leave=None,desc='rtcfg'):
+		account,_,_,_ = cache.load(rtcfg)
+		cfg_acc_pairs.append( (rtcfg,account) )
+	return cfg_acc_pairs
+
+def runBacktestWithCache(*,rtspec,cache,loadCache=True):
+	if(cache is None):
+		(account,d0,universe,simulator) = runBacktest(rtcfg=rtspec)
+		return (account,d0,universe,simulator)
+	# --
+	has = np.array( cache.has(rtspec=rtspec) )
+	has = has[has !=None]
+	if(has.all()):
+		print('.', end="")
+		if(loadCache):
+			return cache.load(rtspec=rtspec)[0:3]+(None,)
+		else:
+			return (None,None,None,None)
+	# --
+	(account,d0,universe,simulator) = runBacktest(rtcfg=rtspec)
+	cache.store(rtspec,account=account,d0=d0,universe=universe)
+	return (account,d0,universe,simulator)
+
+def runBacktest(rtcfg):
+	simulator = build_simulator(rtcfg)
+	(account,d0,universe) = simulator.runBacktest()
+	return (account,d0,universe,simulator)
+

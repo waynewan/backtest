@@ -9,8 +9,8 @@ def main():
 	# --
 	# -- run single without cache
 	# --
-	# rtcfg = projectContainer(cfg.basespec,cfg.n100spec)
-	rtcfg = projectContainer(cfg.basespec,cfg.s500spec)
+	rtcfg = projectContainer(cfg.basespec,cfg.n100spec)
+	# rtcfg = projectContainer(cfg.basespec,cfg.s500spec)
 	# --
 	(account,d0,univers,simulator) = runBacktest(rtcfg=rtcfg)
 	print(containerChecksum(rtcfg))

@@ -1,10 +1,10 @@
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
 from jackutil.containerutil import extractValue
 from tqdm.auto import tqdm
+
 # --
-# --
+# -- use in jupyter-notebook env (ipython) only
 # --
 def plot_account_cumprofit(account,title=None):
 	df0 = account.to_dataframe()
@@ -35,6 +35,13 @@ def plot_3d_surface(title=None,data=None,ax=None):
 	ax.set_xlabel(data.index.name)
 	ax.set_ylabel(data.columns.name)
 
+def plot_3d_surfaces(pivots,figsize=(40,40),arragement=33):
+	fig = plt.figure(figsize=figsize)
+	plt_id = 10 * max(11,min(99, arragement))
+	for k,v in pivots.items():
+		plt_id += 1
+		plot_3d_surface(title=str(k),data=v,ax=fig.add_subplot(plt_id, projection='3d'))
+
 def create_pivots_by_category(data,*,index,columns,values,categoryColumns=None):
 	if(categoryColumns is None):
 		categoryColumns = list( data.columns ) 
@@ -48,34 +55,6 @@ def create_pivots_by_category(data,*,index,columns,values,categoryColumns=None):
 		df = (data.loc[:,categoryColumns]==ii_category).all(axis=1)
 		df = data[df].loc[:,(index,columns,values)]
 		df = df.pivot(index=index,columns=columns,values=values)
-		cat_to_pivots[tuple(ii_category.tolist())] = df
+		cat_to_pivots[ii_category.to_json()] = df
 	return cat_to_pivots
-
-# --
-# -- loading and formatting accounts
-# --
-def loadAccountsFromStore(*,basespec,delta,cache):
-	all_rtcfg = cfg.cfg(basespec=basespec,variations=delta).expand_all()
-	cfg_acc_pairs = []
-	for rtcfg in tqdm(all_rtcfg,leave=None,desc='rtcfg'):
-		account,_,_,_ = cache.load(rtcfg)
-		cfg_acc_pairs.append( (rtcfg,account) )
-	return cfg_acc_pairs
-
-def summary_extractor(*,cfg_acc_pairs,cfg_extractor,acc_extractor):
-	result = []
-	for cfg,account in cfg_acc_pairs:
-		result.append((
-			*cfg_extractor(cfg),
-			*acc_extractor(account)
-		))
-	return pd.DataFrame(result)
-
-def feature_extractor(features):
-	def fn(rtcfg):
-		values = []
-		for feature in features:
-			values.append(extractValue(rtcfg,path=feature))
-		return values
-	return fn
 
