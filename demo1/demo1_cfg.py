@@ -51,7 +51,7 @@ basespec = {
 		"opt" : {
 			"pp" : { 
 				'lperiod':200,
-				'speriod':150,
+				'speriod':50,
 			},
 		},
 	},

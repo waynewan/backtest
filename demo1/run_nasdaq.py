@@ -1,6 +1,6 @@
 from jackutil.containerutil import projectContainer,containerChecksum
 from backtest.tradesim_util import build_simulator,account_profit_summary
-import pprint
+from pprint import pprint
 
 def main():
 	# -----------------------------------------------------------------------------
@@ -17,6 +17,7 @@ def main():
 	print(account_profit_summary(account))
 
 def runBacktest(rtcfg):
+	pprint(rtcfg)
 	simulator = build_simulator(rtcfg)
 	(account,d0,universe) = simulator.runBacktest()
 	return (account,d0,universe,simulator)
