@@ -9,5 +9,5 @@ Steps to run demo
 3) cd backtest/demo1
 4) python run_nasdaq.sh
 
-* This requires norgatedata subscription
+* This requires norgatedata subscription (free trial: https://norgatedata.com/freetrial.php)
 * Must be ran on your norgatedata machine 
