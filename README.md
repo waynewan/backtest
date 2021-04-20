@@ -2,12 +2,13 @@
 backtest system, focus on simplicity and flexibility
 
 Steps to run demo
-1) goto your root directory
-1) git clone https://github.com/waynewan/backtest.git
-1) git clone https://github.com/waynewan/jackutil.git
-2) pip install jackutil/ backtest/
-3) cd backtest/demo1
-4) python run_nasdaq.sh
+1) create a empty directory, (you can reuse existing one, as long as you know what you are doing)
+3) git clone https://github.com/waynewan/backtest.git
+4) git clone https://github.com/waynewan/jackutil.git
+5) pip install jackutil/ backtest/
+6) cd backtest/demo1
+7) python run_nasdaq.sh
 
-* This requires norgatedata subscription
+* This requires norgatedata subscription (free trial: https://norgatedata.com/freetrial.php)
 * Must be ran on your norgatedata machine 
+* I recommend using python virtual environment, such as "venv" and "conda"
