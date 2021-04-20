@@ -66,7 +66,7 @@ class demo1_entry_algo(entryalgo_abc):
 		# --
 		# -- (4) sort by ratio, higher is better
 		# --
-		ratioOrd = dOnly.loc[:,'ratio'].sort_values(ascending=True,na_position="last").index
+		ratioOrd = dOnly.loc[:,'ratio'].sort_values(ascending=True,na_position="last").index[0:10]
 		signals = self.capture_signals(ratioOrd,bars)
 		return (signals,ratioOrd)
 
