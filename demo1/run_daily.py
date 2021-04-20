@@ -1,9 +1,10 @@
-from jackutil.microfunc import str_to_dt,str_to_dt64
+from jackutil.microfunc import str_to_dt,str_to_dt64,dt64_to_str
 from jackutil.containerutil import projectContainer,containerChecksum
 from backtest.tradesim_util import build_simulator,account_profit_summary
 from pprint import pprint
 import demo1_cfg as cfg
 import sys
+import datetime
 
 def main(indexname,dtstr):
 	# ----------------------------------------------------------------
@@ -13,23 +14,27 @@ def main(indexname,dtstr):
 		'n100':cfg.n100spec,
 	}[indexname]
 	# ----------------------------------------------------------------
+	enddt = str_to_dt(dtstr)
+	startdt = enddt - datetime.timedelta(days=500)
 	run_single_spec = {
 		**indexspec,
-		"universe/opt/date_range/0" : str_to_dt('2020-03-19'),
-		"universe/opt/date_range/1" : str_to_dt('2021-04-19'),
+		"universe/opt/date_range/0" : startdt,
+		"universe/opt/date_range/1" : enddt,
 	}
+	print(run_single_spec)
 	# ----------------------------------------------------------------
-	(buylist,rtcfg) = run_single(run_single_spec,str_to_dt64(dtstr))
+	(buylists,rtcfg) = run_single(run_single_spec)
 	print(containerChecksum(rtcfg))
-	pprint(buylist)
+	for buylist in buylists:
+		print(dt64_to_str(buylist[0]), buylist[1][1].tolist())
 
-def run_single(spec,dt64):
+def run_single(spec):
 	rtcfg = projectContainer(cfg.basespec,spec)
-	return ( runDailyBuylist(rtcfg, dt64), rtcfg )
+	return ( runDailyBuylist(rtcfg), rtcfg )
 
-def runDailyBuylist(rtcfg, dt64):
+def runDailyBuylist(rtcfg):
 	simulator = build_simulator(rtcfg)
-	return simulator.runDailyBuylist(dt64)
+	return simulator.runDailyBuylist(days=5)
 
 # --
 # -- ======================================
