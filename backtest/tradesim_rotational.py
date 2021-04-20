@@ -1,4 +1,5 @@
 import math
+import datetime
 from tqdm.auto import tqdm
 from backtest.abc.tradesim_abc import tradesim_abc
 from .account import BrokerAccount,PositionState
@@ -49,6 +50,18 @@ class Tradesim(tradesim_abc):
 				print(dt,ex)
 				raise
 		return account,self.__universe.d0,self.__universe
+
+	def runDailyBuylist(self,dt64=None):
+		if(dt64 is None):
+			dt64 = self.__universe.trade_dates[-1]
+		try:
+			self.__universe.asof_date = dt64
+			bars = self.__universe.bars_on(dt64)
+			buy_list = self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
+			return buy_list
+		except Exception as ex:
+			print(dt64,ex)
+			raise
 
 	def fail_staged_open(self,dt,account,bars,msg):
 		staged_open = tuple( account.positions(PositionState.STAGED_OPEN).values() )

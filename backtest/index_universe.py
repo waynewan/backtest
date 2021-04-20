@@ -26,7 +26,6 @@ class IndexUniverse(universe_abc):
 
 	def __load_membership(self):
 		df = ngu.load_index_membership(self.__indexname)
-		# df = df[__inrange__(df.index,ge=self.__startdate,le=self.__enddate)]
 		df = df[inrange(df.index,ge=self.__startdate,le=self.__enddate)]
 		membership = df.dropna(axis=1,how='all')
 		nominal_size = ngu.member_count_for(self.__indexname)
@@ -67,13 +66,11 @@ class IndexUniverse(universe_abc):
 
 	def symbols_btw(self,startdate=None,enddate=None):
 		if(startdate is None):
-			# startdate = __0_date_str__('1970-01-01')
 			startdate = str_to_dt('1970-01-01')
 		if(enddate is None):
 			enddate = datetime.datetime.now().date()
 		# --
 		uni = self.__membership
-		# uni = uni[__inrange__(uni.index,ge=startdate,le=enddate)]
 		uni = uni[inrange(uni.index,ge=startdate,le=enddate)]
 		return uni.columns.to_numpy()
 
