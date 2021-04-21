@@ -23,18 +23,20 @@ def main(indexname,dtstr):
 	}
 	print(run_single_spec)
 	# ----------------------------------------------------------------
-	(buylists,rtcfg) = run_single(run_single_spec)
+	(actions,rtcfg) = run_single(run_single_spec)
 	print(containerChecksum(rtcfg))
-	for buylist in buylists:
-		print(dt64_to_str(buylist[0]), buylist[1][1].tolist())
+	for action in actions:
+		print("#" * 80)
+		print('rundate',dt64_to_str(action['rundate']))
+		print('sysfilter',action['sysfilter'])
+		print('stageopen',action['stageopen'][1].tolist())
+		print('stageclose',action['stageclose'])
 
 def run_single(spec):
 	rtcfg = projectContainer(cfg.basespec,spec)
-	return ( runDailyBuylist(rtcfg), rtcfg )
-
-def runDailyBuylist(rtcfg):
 	simulator = build_simulator(rtcfg)
-	return simulator.runDailyBuylist(days=5)
+	actions = simulator.runDailyAction(days=5)
+	return ( actions, rtcfg )
 
 # --
 # -- ======================================

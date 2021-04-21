@@ -6,5 +6,5 @@ class tradesim_abc(metaclass=abc.ABCMeta):
 		pass
 
 	@abc.abstractmethod
-	def runDailyBuylist(self,days):
+	def runDailyAction(self,days):
 		pass

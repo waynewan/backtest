@@ -51,15 +51,6 @@ class Tradesim(tradesim_abc):
 				raise
 		return account,self.__universe.d0,self.__universe
 
-	def runDailyBuylist(self,days=1):
-		result = []
-		for dt64 in self.__universe.trade_dates[-days:]:
-			self.__universe.asof_date = dt64
-			bars = self.__universe.bars_on(dt64)
-			buy_list = self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
-			result.append( (dt64,buy_list) )
-		return result
-
 	def fail_staged_open(self,dt,account,bars,msg):
 		staged_open = tuple( account.positions(PositionState.STAGED_OPEN).values() )
 		for pos in staged_open:
@@ -161,3 +152,28 @@ class Tradesim(tradesim_abc):
 		# --
 		self.update_trailing_stop(dt,account,bars)
 
+	# --
+	# -- below, queries only
+	# --
+	def runDailyAction(self,days=1):
+		result = []
+		for dt64 in self.__universe.trade_dates[-days:]:
+			daily_action = {
+				"rundate"    : dt64                            ,
+				"sysfilter"  : self.__genDailySysfilter(dt64)  ,
+				"stageopen"  : self.__genDailyBuyList(dt64)    ,
+				"stageclose" : self.__genDailySellList(dt64)   ,
+			}
+			result.append(daily_action)
+		return result
+
+	def __genDailyBuyList(self,dt64):
+		self.__universe.asof_date = dt64
+		bars = self.__universe.bars_on(dt64)
+		return self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
+
+	def __genDailySysfilter(self,dt64):
+		return self.__sysfilter.allow_entry(dt64)
+
+	def __genDailySellList(self,dt64):
+		return []
