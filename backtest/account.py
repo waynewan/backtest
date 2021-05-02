@@ -226,13 +226,11 @@ class Position:
 	# -- using "max", only work for long trade
 	# --
 	def update_trailing_stop(self,*,date,new_stop,msg=None):
-		#date = __0_date_str__(date)
 		if(not self.__trailing_stop.hasvalue() or self.__trailing_stop.value<new_stop):
 			self.__trailing_stop.value = (new_stop,date,msg)
 		return self.__trailing_stop.value
 	
 	def update_profit_protect_stop(self,*,date,new_stop,msg=None):
-		#date = __0_date_str__(date)
 		if(not self.__profit_protect_stop.hasvalue() or self.__profit_protect_stop.value<new_stop):
 			self.__profit_protect_stop.value = (new_stop,date,msg)
 		return self.__profit_protect_stop.value

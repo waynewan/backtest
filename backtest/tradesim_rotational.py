@@ -3,6 +3,8 @@ import datetime
 from tqdm.auto import tqdm
 from backtest.abc.tradesim_abc import tradesim_abc
 from .account import BrokerAccount,PositionState
+from collections import defaultdict
+from jackutil.auditedvalue import AuditedValue
 
 class Tradesim(tradesim_abc):
 	def __init__(self,*,entryalgo,exitalgo,universe,sysfilter,opt):
@@ -159,10 +161,13 @@ class Tradesim(tradesim_abc):
 		result = []
 		for dt64 in self.__universe.trade_dates[-days:]:
 			daily_action = {
-				"rundate"    : dt64                            ,
-				"sysfilter"  : self.__genDailySysfilter(dt64)  ,
-				"stageopen"  : self.__genDailyBuyList(dt64)    ,
-				"stageclose" : self.__genDailySellList(dt64)   ,
+				"rundate"    : dt64,
+				"sysfilter"  : {
+					"allow_entry" : self.__sysfilter.allow_entry(dt64),
+					"allow_exit" : self.__sysfilter.allow_exit(dt64),
+				},
+				"stageopen"  : self.__genDailyBuyList(dt64),
+				"stageclose" : self.__genDailySellList(dt64),
 			}
 			result.append(daily_action)
 		return result
@@ -172,8 +177,30 @@ class Tradesim(tradesim_abc):
 		bars = self.__universe.bars_on(dt64)
 		return self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
 
-	def __genDailySysfilter(self,dt64):
-		return self.__sysfilter.allow_entry(dt64)
-
 	def __genDailySellList(self,dt64):
 		return []
+
+	def calcTrailingstop(self,executions):
+		for exec in executions:
+			exec['stops'] = defaultdict(lambda : AuditedValue(defval=0.0) )
+		for dt in tqdm(self.__universe.trade_dates,leave=None,desc="calcTrailingstop"):
+			bars_on_dt = self.__universe.bars_on(dt)
+			for exec in tqdm(executions,leave=None,desc="executions"):
+				exec_date = exec['entry_exec_date']
+				if(dt<exec_date):
+					continue
+				bar = bars_on_dt.loc[exec['symbol']]
+				self.__updateTrailingStop(dt,bar,exec)
+		
+	def __updateTrailingStop(self,dt,bar,exec):
+		cur_stops = exec['stops']
+		new_stops = self.__exitalgo.calc_all_stops(
+			dt,bar,
+			entry_exec_date=exec['entry_exec_date'],
+			entry_price=exec['entry_price']
+		)
+		for stop_name,new_stop in new_stops.items():
+			cur_stop = cur_stops[stop_name]
+			if(not cur_stop.hasvalue() or cur_stop.value<new_stop):
+				cur_stop.value = (new_stop,dt,"__updateTrailingStop")
+
