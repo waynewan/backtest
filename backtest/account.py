@@ -1,4 +1,4 @@
-from jackutil.microfunc import date_only
+from jackutil.microfunc import date_only,dt_to_str
 from jackutil.auditedvalue import AuditedValue
 from . import postprocessor
 from enum import Enum
@@ -201,11 +201,17 @@ class Position:
 		transaction_cost = -(self.share * price + expense)
 		return transaction_cost
 		
+	@property
 	def status_audit(self):
 		return self.__status.audit
 
+	@property
 	def trailing_stop_audit(self):
 		return self.__trailing_stop.audit
+
+	@property
+	def profit_protect_stop_audit(self):
+		return self.__profit_protect_stop.audit
 
 	@property
 	def status(self):
@@ -239,13 +245,13 @@ class Position:
 	# --
 	def __str__(self):
 		return "Position({},{},{},{},{},{},{},{},{})".format(
-			str(date_only(self.entry_signal_date)),
+			str(self.entry_signal_date),
 			self.__symbol,
 			self.share,
 			self.__status,
-			str(date_only(self.entry_exec_date)),
-			str(date_only(self.exit_exec_date)),
-			str(date_only(self.exit_signal_date)),
+			str(self.entry_exec_date),
+			str(self.exit_exec_date),
+			str(self.exit_signal_date),
 			self.entry_price,
 			self.exit_price
 		)
