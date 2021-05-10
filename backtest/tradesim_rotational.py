@@ -72,10 +72,15 @@ class Tradesim(tradesim_abc):
 			if(stopout_msg is not None):
 				account.stage_close(pos,date=dt,msg=stopout_msg)
 
-	def update_trailing_stop(self,dt,account,bars):
+	def update_account_exit_conditions(self,dt,account,bars):
 		for pos in account.positions(PositionState.ACTIVE).values():
 			bar = bars.loc[pos.symbol]
-			self.__exitalgo.update_trailing_stop_for(dt,pos,bar)
+			self.__exitalgo.update_map_exit_conditions(
+				dt,bar,
+				pos.entry_exec_date,
+				pos.entry_price,
+				pos.exit_conditions
+			)
 	
 	def flush_stagged_open_no_allow(self,dt,account,bars):
 		staged_open = tuple( account.positions(PositionState.STAGED_OPEN).values() )
@@ -152,7 +157,7 @@ class Tradesim(tradesim_abc):
 		# --
 		# -- update trailing stop for next cycle
 		# --
-		self.update_trailing_stop(dt,account,bars)
+		self.update_account_exit_conditions(dt,account,bars)
 
 	# --
 	# -- below, queries only
@@ -190,17 +195,10 @@ class Tradesim(tradesim_abc):
 				if(dt<exec_date):
 					continue
 				bar = bars_on_dt.loc[exec['symbol']]
-				self.__updateTrailingStop(dt,bar,exec)
+				self.__exitalgo.update_map_exit_conditions(
+					dt,bar,
+					exec['entry_exec_date'],
+					exec['entry_price'],
+					exec['stops'],
+				)
 		
-	def __updateTrailingStop(self,dt,bar,exec):
-		cur_stops = exec['stops']
-		new_stops = self.__exitalgo.calc_all_stops(
-			dt,bar,
-			entry_exec_date=exec['entry_exec_date'],
-			entry_price=exec['entry_price']
-		)
-		for stop_name,new_stop in new_stops.items():
-			cur_stop = cur_stops[stop_name]
-			if(not cur_stop.hasvalue() or cur_stop.value<new_stop):
-				cur_stop.value = (new_stop,dt,"__updateTrailingStop")
-

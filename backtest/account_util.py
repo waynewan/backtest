@@ -59,8 +59,8 @@ def dump_position(position,use_df=True,audit_depth=5):
 		sl = slice(None,None,None)
 	if(use_df):
 		status_df = position._Position__status.to_dataframe(limit=audit_depth,marker='_SS_____')
-		tstop_df = position._Position__trailing_stop.to_dataframe(limit=audit_depth,marker='_____TT_')
-		ppstop_df = position._Position__profit_protect_stop.to_dataframe(limit=audit_depth,marker='___PP___')
+		tstop_df = position.exit_conditions['trailing_stop'].to_dataframe(limit=audit_depth,marker='_____TT_')
+		ppstop_df = position.exit_conditions['profit_protect_stop'].to_dataframe(limit=audit_depth,marker='___PP___')
 		changes_df = pd.concat([status_df,tstop_df,ppstop_df],axis=0).sort_index()
 		print(changes_df)
 		return
@@ -68,9 +68,9 @@ def dump_position(position,use_df=True,audit_depth=5):
 		print("+ status:",len(position.status_audit))
 		for ss in position.status_audit[sl]:
 			print("├── {1:8s} {0:} [{2:}]".format(*ss))
-		print("+ trailing_stop:",len(position.trailing_stop_audit))
-		for ss in position.trailing_stop_audit[sl]:
+		print("+ trailing_stop:",len(position.exit_conditions['trailing_stop'].audit))
+		for ss in position.exit_conditions['trailing_stop'].audit[sl]:
 			print("├── {1:8s} {0:} [{2:}]".format(*ss))
-		print("+ profit_protect_stop:",len(position.profit_protect_stop_audit))
-		for ss in position.profit_protect_stop_audit[sl]:
+		print("+ profit_protect_stop:",len(position.exit_conditions['profit_protect_stop'].audit))
+		for ss in position.exit_conditions['profit_protect_stop'].audit[sl]:
 			print("├── {1:8s} {0:} [{2:}]".format(*ss))

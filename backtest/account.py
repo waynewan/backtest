@@ -1,6 +1,7 @@
 from jackutil.microfunc import date_only,dt_to_str
 from jackutil.auditedvalue import AuditedValue
 from . import postprocessor
+from collections import defaultdict
 from enum import Enum
 import pandas as pd
 
@@ -149,9 +150,7 @@ class Position:
 	def __init__(self,symbol):
 		self.__symbol = symbol
 		self.__status = AuditedValue(PositionState.UNKNOWN)
-		# --
-		self.__trailing_stop = AuditedValue(defval=0.0)
-		self.__profit_protect_stop = AuditedValue(defval=0.0)
+		self.__exit_conditions = defaultdict(lambda : AuditedValue(defval=0.0))
 		self.note = AuditedValue()
 		# --
 		self.share = None
@@ -206,14 +205,6 @@ class Position:
 		return self.__status.audit
 
 	@property
-	def trailing_stop_audit(self):
-		return self.__trailing_stop.audit
-
-	@property
-	def profit_protect_stop_audit(self):
-		return self.__profit_protect_stop.audit
-
-	@property
 	def status(self):
 		return self.__status.value
 
@@ -222,24 +213,21 @@ class Position:
 		return self.__symbol
 
 	@property
-	def trailing_stop(self):
-		return self.__trailing_stop.value
+	def exit_conditions(self):
+		return self.__exit_conditions
 
-	@property
-	def profit_protect_stop(self):
-		return self.__profit_protect_stop.value
 	# --
 	# -- using "max", only work for long trade
 	# --
-	def update_trailing_stop(self,*,date,new_stop,msg=None):
-		if(not self.__trailing_stop.hasvalue() or self.__trailing_stop.value<new_stop):
-			self.__trailing_stop.value = (new_stop,date,msg)
-		return self.__trailing_stop.value
-	
-	def update_profit_protect_stop(self,*,date,new_stop,msg=None):
-		if(not self.__profit_protect_stop.hasvalue() or self.__profit_protect_stop.value<new_stop):
-			self.__profit_protect_stop.value = (new_stop,date,msg)
-		return self.__profit_protect_stop.value
+	def update_exit_condition(self,*,cond_name,new_val,upd_date,upd_msg=None):
+		existing_val = self.__exit_conditions[cond_name]
+		if(not existing_val.hasvalue() or existing_val.value<new_val):
+			existing_val.value = (new_val,upd_date,upd_msg)
+		
+	def update_exit_conditions(self,new_conds):
+		for kk,nc in new_conds.items():
+			self.update_exit_condition(cond_name=kk,**nc)
+
 	# --
 	# --
 	# --

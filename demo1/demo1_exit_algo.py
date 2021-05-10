@@ -48,7 +48,7 @@ class demo1_exit_algo(exitalgo_abc):
 			return "below_profit_protect_stop"
 		return None
 
-	def update_trailing_stop_for(self,dt,pos,bar):
+	def update_exit_conditions(self,dt,pos,bar):
 		rt_cfg = self.__opt["op"]
 		# --
 		# !! only have access to 1 position at a time !!
