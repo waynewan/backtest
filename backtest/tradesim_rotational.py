@@ -11,6 +11,8 @@ class Tradesim(tradesim_abc):
 		self.__maxpos = opt["maxpos"]
 		self.__expense_ratio = opt["expense_ratio"]
 		self.__init_capital= opt["init_capital"]
+		self.__exec_open_delay = opt["exec_open_delay"]
+		self.__exec_close_delay = opt["exec_close_delay"]
 		self.__entryalgo = entryalgo
 		self.__exitalgo = exitalgo
 		self.__universe = universe
@@ -62,7 +64,12 @@ class Tradesim(tradesim_abc):
 		buy_list = self.__entryalgo.buy_list_on(dt,bars,self.__universe)
 		for symbol in buy_list[1]:
 			signal = buy_list[0][symbol]
-			account.stage_open(date=dt,symbol=symbol,msg='buy_list',signal=signal)
+			account.stage_open(
+				date=dt,
+				symbol=symbol,
+				msg='buy_list',
+				signal=signal,
+				counter=self.__exec_open_delay)
 
 	def stage_close_from_strategy(self,dt,account,bars):
 		active_trades = tuple( account.positions(PositionState.ACTIVE).values() )
@@ -70,7 +77,7 @@ class Tradesim(tradesim_abc):
 			bar = bars.loc[pos.symbol]
 			stopout_msg = self.__exitalgo.check_stopout_cond(dt,pos,bar)
 			if(stopout_msg is not None):
-				account.stage_close(pos,date=dt,msg=stopout_msg)
+				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exec_close_delay)
 
 	def update_account_exit_conditions(self,dt,account,bars):
 		for pos in account.positions(PositionState.ACTIVE).values():
@@ -113,7 +120,7 @@ class Tradesim(tradesim_abc):
 					share = new_position_dollar_amt / close_price 
 					net_gross = close_price * share
 					commission = round(net_gross * self.__expense_ratio, 2)
-					account.exec_open(pos,date=dt,share=share,price=close_price,expense=commission,msg=exec_stagged_open_msg)
+					account.try_exec_open(pos,date=dt,share=share,price=close_price,expense=commission,msg=exec_stagged_open_msg)
 
 	def exec_close_on_state(self,dt,state,account,bars,msg):
 		stage_close = tuple( account.positions(state).values() )
@@ -122,7 +129,7 @@ class Tradesim(tradesim_abc):
 			share = pos.share
 			commission = round(close_price * share * self.__expense_ratio, 2)
 			# print("exec_close_on_state:{},close:{},share:{}".format(pos,close_price,share))
-			account.exec_close(pos,date=dt,price=close_price,expense=commission,msg=msg)
+			account.try_exec_close(pos,date=dt,price=close_price,expense=commission,msg=msg)
 
 	def close_all_positions(self,dt,account,bars):
 		self.fail_staged_open(dt,account,bars,"last_session")
@@ -142,14 +149,12 @@ class Tradesim(tradesim_abc):
 		# -- exec stagged positions from previous bar (not bars)
 		# -- discard any stagged that are not exec'ed
 		# --
-		if(self.__sysfilter.allow_entry(dt)):
-			self.exec_or_fail_stagged_open(dt,account,bars)
-		else:
-			self.flush_stagged_open_no_allow(dt,account,bars)
+		self.exec_or_fail_stagged_open(dt,account,bars)
 		# --
 		# -- stage (but not exec) new trades, based on EOD data
 		# --
-		self.stage_open_from_strategy(dt,account,bars)
+		if(self.__sysfilter.allow_entry(dt)):
+			self.stage_open_from_strategy(dt,account,bars)
 		# --
 		# -- check for any trade need to be closed
 		# --
@@ -201,4 +206,4 @@ class Tradesim(tradesim_abc):
 					exec['entry_price'],
 					exec['stops'],
 				)
-		
+

@@ -91,10 +91,9 @@ class BrokerAccount:
 			return df
 		return pp(self,df)
 
-	def stage_open(self,*,date,symbol,msg,signal=None):
-		#date = __0_date_str__(date)
+	def stage_open(self,*,date,symbol,msg,signal=None,counter=None):
 		new_position = Position(symbol)
-		new_position.stage_open(date=date,msg=msg,signal=signal)
+		new_position.stage_open(date=date,msg=msg,signal=signal,counter=counter)
 		self.__manage_position(new_position)
 		return new_position
 
@@ -104,14 +103,22 @@ class BrokerAccount:
 		position.fail_open(date=date,msg=msg)
 		self.__manage_position(position,orig_state)
 
-	def stage_close(self,position,*,date,msg,signal=None):
-		#date = __0_date_str__(date)
+	def stage_close(self,position,*,date,msg,signal=None,counter=None):
 		orig_state = position.status
-		position.stage_close(date=date,msg=msg,signal=signal)
+		position.stage_close(date=date,msg=msg,signal=signal,counter=counter)
 		self.__manage_position(position,orig_state)
 
+	def try_exec_open(self,position,*,date,share,price,expense,msg):
+		if( not position.reduce_staging_counter()):
+			return None
+		return self.exec_open(position,
+			date=date,
+			share=share,
+			price=price,
+			expense=expense,
+			msg=msg)
+
 	def exec_open(self,position,*,date,share,price,expense,msg):
-		#date = __0_date_str__(date)
 		assert share>0
 		assert price>=0
 		assert expense>=0
@@ -121,8 +128,16 @@ class BrokerAccount:
 		self.withdraw(date=date,amount=abs(transaction_cost),msg="exec_open {}".format(position))
 		return transaction_cost
 
+	def try_exec_close(self,position,*,date,price,expense,msg):
+		if( not position.reduce_staging_counter()):
+			return None
+		return self.exec_close(position,
+			date=date,
+			price=price,
+			expense=expense,
+			msg=msg)
+
 	def exec_close(self,position,*,date,price,expense,msg):
-		#date = __0_date_str__(date)
 		orig_state = position.status
 		transaction_cost = position.exec_close(date=date,price=price,expense=expense,msg=msg)
 		self.__manage_position(position,orig_state)
@@ -147,11 +162,12 @@ class BrokerAccount:
 # --
 # --
 class Position:
-	def __init__(self,symbol):
+	def __init__(self,symbol,counter=1):
 		self.__symbol = symbol
 		self.__status = AuditedValue(PositionState.UNKNOWN)
 		self.__exit_conditions = defaultdict(lambda : AuditedValue(defval=0.0))
 		self.note = AuditedValue()
+		self.__staging_counter = counter
 		# --
 		self.share = None
 		self.entry_dollar_commission = None
@@ -165,18 +181,24 @@ class Position:
 		self.entry_signal = None
 		self.exit_signal = None
 
-	def stage_open(self,*,date,msg,signal=None):
-		#date = __0_date_str__(date)
+	def expired_staging_counter(self):
+		return self.__staging_counter<=0
+
+	def reduce_staging_counter(self):
+		self.__staging_counter = self.__staging_counter - 1
+		return self.expired_staging_counter()
+
+	def stage_open(self,*,date,msg,signal=None,counter=None):
+		assert counter>=0 
 		self.entry_signal_date = date
 		self.entry_signal = signal
+		self.__staging_counter = counter
 		self.__status.value = PositionState.STAGED_OPEN,date,msg
 
 	def fail_open(self,*,date,msg):
-		#date = __0_date_str__(date)
 		self.__status.value = PositionState.FAILED,date,msg
 
-	def exec_open(self,*,date,share,price,expense,msg):
-		#date = __0_date_str__(date)
+	def exec_open(self,date,share,price,expense,msg):
 		self.entry_dollar_commission = expense
 		self.entry_exec_date = date
 		self.entry_price = price
@@ -185,14 +207,14 @@ class Position:
 		transaction_cost = -(share * price + expense)
 		return transaction_cost
 		
-	def stage_close(self,*,date,msg,signal=None):
-		#date = __0_date_str__(date)
+	def stage_close(self,*,date,msg,signal=None,counter=None):
+		assert counter>=0 
 		self.exit_signal_date = date
 		self.exit_signal = signal
+		self.__staging_counter = counter
 		self.__status.value = PositionState.STAGED_CLOSE,date,msg
 
-	def exec_close(self,*,date,price,expense,msg):
-		#date = __0_date_str__(date)
+	def exec_close(self,date,price,expense,msg):
 		self.exit_dollar_commission = expense
 		self.exit_exec_date = date
 		self.exit_price = price
