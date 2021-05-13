@@ -11,8 +11,8 @@ class Tradesim(tradesim_abc):
 		self.__maxpos = opt["maxpos"]
 		self.__expense_ratio = opt["expense_ratio"]
 		self.__init_capital= opt["init_capital"]
-		self.__exec_open_delay = opt["exec_open_delay"]
-		self.__exec_close_delay = opt["exec_close_delay"]
+		self.__entry_delay = opt["entry_delay"]
+		self.__exit_delay = opt["exit_delay"]
 		self.__entryalgo = entryalgo
 		self.__exitalgo = exitalgo
 		self.__universe = universe
@@ -69,7 +69,7 @@ class Tradesim(tradesim_abc):
 				symbol=symbol,
 				msg='buy_list',
 				signal=signal,
-				counter=self.__exec_open_delay)
+				counter=self.__entry_delay)
 
 	def stage_close_from_strategy(self,dt,account,bars):
 		active_trades = tuple( account.positions(PositionState.ACTIVE).values() )
@@ -77,7 +77,7 @@ class Tradesim(tradesim_abc):
 			bar = bars.loc[pos.symbol]
 			stopout_msg = self.__exitalgo.check_stopout_cond(dt,pos,bar)
 			if(stopout_msg is not None):
-				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exec_close_delay)
+				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exit_delay)
 
 	def update_account_exit_conditions(self,dt,account,bars):
 		for pos in account.positions(PositionState.ACTIVE).values():
