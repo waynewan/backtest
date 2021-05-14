@@ -122,22 +122,27 @@ class Tradesim(tradesim_abc):
 					commission = round(net_gross * self.__expense_ratio, 2)
 					account.try_exec_open(pos,date=dt,share=share,price=close_price,expense=commission,msg=exec_stagged_open_msg)
 
-	def exec_close_on_state(self,dt,state,account,bars,msg):
+	def exec_close_on_state(self,dt,state,account,bars,msg,stage_and_close=False,force_close=False):
 		stage_close = tuple( account.positions(state).values() )
 		for pos in stage_close:
 			close_price = bars.loc[pos.symbol,'Close']
 			share = pos.share
 			commission = round(close_price * share * self.__expense_ratio, 2)
-			# print("exec_close_on_state:{},close:{},share:{}".format(pos,close_price,share))
-			account.try_exec_close(pos,date=dt,price=close_price,expense=commission,msg=msg)
+			if(stage_and_close):
+				account.stage_close(pos,date=dt,msg="stage_and_close",counter=0)
+				account.exec_close(pos,date=dt,price=close_price,expense=commission,msg=msg)
+			elif(force_close):
+				account.exec_close(pos,date=dt,price=close_price,expense=commission,msg=msg)
+			else:
+				account.try_exec_close(pos,date=dt,price=close_price,expense=commission,msg=msg)
 
 	def close_all_positions(self,dt,account,bars):
 		self.fail_staged_open(dt,account,bars,"last_session")
 		staged_open = tuple( account.positions(PositionState.STAGED_OPEN).values() )
 		for pos in staged_open:
 			account.fail_open(pos,date=dt,msg='last_session')
-		self.exec_close_on_state(dt,PositionState.ACTIVE,account,bars,"last_session")
-		self.exec_close_on_state(dt,PositionState.STAGED_CLOSE,account,bars,"last_session")
+		self.exec_close_on_state(dt,PositionState.ACTIVE,account,bars,"last_session",stage_and_close=True)
+		self.exec_close_on_state(dt,PositionState.STAGED_CLOSE,account,bars,"last_session",force_close=True)
 
 	def process_bars(self,dt,account,bars):
 		# --
@@ -185,7 +190,10 @@ class Tradesim(tradesim_abc):
 	def __genDailyBuyList(self,dt64):
 		self.__universe.asof_date = dt64
 		bars = self.__universe.bars_on(dt64)
-		return self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
+		if(self.__sysfilter.allow_entry(dt64)):
+			return self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
+		else:
+			return []
 
 	def __genDailySellList(self,dt64):
 		return []

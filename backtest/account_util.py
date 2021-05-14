@@ -23,7 +23,7 @@ def expand_auditedvalue_col(series,*,prefix=None,final_val_only=False,ts_as_inde
 		return series.apply(lambda x : x.audit )
 
 def dump_account(account):
-	for kk,vv in allpositions.items():
+	for kk,vv in account.positions().items():
 		if(vv is None):
 			print(kk, "[ NONE ]")
 		elif(len(vv)==0):
@@ -33,7 +33,14 @@ def dump_account(account):
 			print(vv)
 			print(kk, "#" * 70)
 
-def dump_position(position,use_df=True,audit_depth=5):
+def position_events(position,audit_depth=-1):
+	status_df = position._Position__status.to_dataframe(limit=audit_depth,marker='_SS_____')
+	tstop_df = position.exit_conditions['trailing_stop'].to_dataframe(limit=audit_depth,marker='_____TT_')
+	ppstop_df = position.exit_conditions['profit_protect_stop'].to_dataframe(limit=audit_depth,marker='___PP___')
+	changes_df = pd.concat([status_df,tstop_df,ppstop_df],axis=0).sort_index()
+	return changes_df
+
+def dump_position(position,audit_depth=5):
 	print("-- symbol:{0:} --".format(position.symbol))
 	print("+ entry[{0:}/{1:}] ${2:.2f} x {3:.3f}".format(
 		dt64_to_str(position.entry_signal_date),
@@ -51,20 +58,10 @@ def dump_position(position,use_df=True,audit_depth=5):
 	p_and_l = position.share * (position.exit_price - position.entry_price) - ttl_commission 
 	print("+ commission: ${0:.2f}".format(ttl_commission))
 	print("+ P&L: ${0:.2f}".format(p_and_l))
-	if(audit_depth==0):
-		return
-	# --
-	sl = slice(0,audit_depth,1)
-	if(audit_depth==-1):
-		sl = slice(None,None,None)
-	if(use_df):
-		status_df = position._Position__status.to_dataframe(limit=audit_depth,marker='_SS_____')
-		tstop_df = position.exit_conditions['trailing_stop'].to_dataframe(limit=audit_depth,marker='_____TT_')
-		ppstop_df = position.exit_conditions['profit_protect_stop'].to_dataframe(limit=audit_depth,marker='___PP___')
-		changes_df = pd.concat([status_df,tstop_df,ppstop_df],axis=0).sort_index()
-		print(changes_df)
-		return
-	else:
+	if(audit_depth>0):
+		sl = slice(0,audit_depth,1)
+		if(audit_depth==-1):
+			sl = slice(None,None,None)
 		print("+ status:",len(position.status_audit))
 		for ss in position.status_audit[sl]:
 			print("├── {1:8s} {0:} [{2:}]".format(*ss))
