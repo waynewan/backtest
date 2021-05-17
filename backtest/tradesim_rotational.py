@@ -1,5 +1,6 @@
 import math
 import datetime
+import pandas as pd
 from tqdm.auto import tqdm
 from backtest.abc.tradesim_abc import tradesim_abc
 from .account import BrokerAccount,PositionState
@@ -193,7 +194,8 @@ class Tradesim(tradesim_abc):
 		if(self.__sysfilter.allow_entry(dt64)):
 			return self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
 		else:
-			return []
+			EMPTY_topCandidates_Return=({},pd.Series([],dtype='str'))
+			return EMPTY_topCandidates_Return
 
 	def __genDailySellList(self,dt64):
 		return []
