@@ -106,6 +106,11 @@ class Tradesim(tradesim_abc):
 			elif(new_position_dollar_amt<=0):
 				account.fail_open(pos,date=dt,msg="negative_cash_value")
 			else:
+				final_check_fail_reason = self.__entryalgo.exec_open_final_check(pos.symbol,bars.loc[pos.symbol])
+				if(final_check_fail_reason is not None):
+					account.fail_open(pos,date=dt,msg=final_check_fail_reason)
+					return
+				# --
 				close_price = bars.loc[pos.symbol,'Close']
 				if(math.isnan(close_price)):
 					account.fail_open(pos,date=dt,msg="missing_price")
