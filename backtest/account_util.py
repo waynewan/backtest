@@ -33,7 +33,7 @@ def dump_account(account):
 			print(vv)
 			print(kk, "#" * 70)
 
-def position_events(position,audit_depth=-1):
+def events_to_dataframe(position,audit_depth=-1):
 	status_df = position._Position__status.to_dataframe(limit=audit_depth,marker='_SS_____')
 	tstop_df = position.exit_conditions['trailing_stop'].to_dataframe(limit=audit_depth,marker='_____TT_')
 	ppstop_df = position.exit_conditions['profit_protect_stop'].to_dataframe(limit=audit_depth,marker='___PP___')
