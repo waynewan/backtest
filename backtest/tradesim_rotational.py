@@ -167,13 +167,15 @@ class Tradesim(tradesim_abc):
 		if(self.__sysfilter.allow_entry(dt)):
 			self.stage_open_from_strategy(dt,account,bars)
 		# --
+		# -- update trailing stop for next cycle
+		# !! ==> close exec base on the latest available information
+		# !!     because execution is always delay by at least 1 period
+		# --
+		self.update_account_exit_conditions(dt,account,bars)
+		# --
 		# -- check for any trade need to be closed
 		# --
 		self.stage_close_from_strategy(dt,account,bars)
-		# --
-		# -- update trailing stop for next cycle
-		# --
-		self.update_account_exit_conditions(dt,account,bars)
 
 	# --
 	# -- below, queries only
