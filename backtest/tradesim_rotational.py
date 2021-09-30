@@ -216,6 +216,8 @@ class Tradesim(tradesim_abc):
 				exec_date = exec['entry_exec_date']
 				if(dt<exec_date):
 					continue
+				if(not exec['action']):
+					continue
 				bar = bars_on_dt.loc[exec['symbol']]
 				self.__exitalgo.update_map_exit_conditions(
 					dt,bar,
