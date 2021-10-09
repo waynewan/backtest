@@ -13,7 +13,7 @@ class IndexUniverse(universe_abc):
 		self.__indexname = opt['indexname']
 		self.__startdate = opt['date_range'][0]
 		self.__enddate   = opt['date_range'][1]
-		self.__membership,self.__nominal_size = self.__load_membership_cached()
+		self.__membership,self.__nominal_size = self.__load_membership()
 		# --
 		self._universe_abc__trade_dates = self.__membership.index.to_numpy()
 		self._universe_abc__d0 = self.__load_d0(pp)
