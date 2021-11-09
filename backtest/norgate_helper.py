@@ -151,7 +151,7 @@ def load_history(symbol,pp_opt=None):
 		pp(symbol,ngprice)
 	return ngprice
 
-def load_history_for_symbols(symbols,pp_opt=None):
+def load_history_for_symbols(symbols,pp_opt={}):
 	pp_opt_json = json.dumps(pp_opt)
 	pricehistory = {}
 	symbar = tqdm(symbols,leave=None,desc="history")
