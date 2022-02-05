@@ -1,5 +1,7 @@
 from jackutil.containerutil import cfg_to_obj,extractValue
 import pandas as pd
+from .account import PositionState
+from .account_util import to_dataframe
 
 # --
 # --
@@ -34,6 +36,20 @@ def account_profit_summary(account):
 		return [ 0.0 ]
 	profit = df['profit'].sum()
 	return [ profit / account.init_cash() ]
+
+def account_profit_summary2(account):
+	allpositions = account.positions()
+	closedpos = allpositions[PositionState.CLOSED]
+	failedpos = allpositions[PositionState.FAILED]
+	closed_df = to_dataframe(closedpos.values())
+	failed_df = to_dataframe(failedpos.values())
+	closedpos_lst = sorted(list(closedpos.values()))
+	failedpos_lst = sorted(list(failedpos.values()))
+	# --
+	return { 
+		"# closed trades", len(closedpos_lst),
+		"# failed trades", len(failedpos_lst),
+	}
 
 def summary_extractor(*,cfg_acc_pairs,cfg_extractor,acc_extractor):
 	result = []
