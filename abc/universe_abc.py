@@ -40,7 +40,7 @@ class universe_abc(metaclass=abc.ABCMeta):
 	# -- abstract methods
 	# --
 	@abc.abstractmethod
-	def bars_on(self,dt=None):
+	def bars_on(self,dt=None,mbr_only=False):
 		pass
 	@abc.abstractmethod
 	def symbols_at(self,as_of_date,exact=False):

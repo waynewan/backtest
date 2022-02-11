@@ -133,3 +133,4 @@ dmypy.json
 trash/
 pickle_jar/
 
+*.backup

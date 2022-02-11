@@ -74,7 +74,12 @@ class IndexUniverse(universe_abc):
 		uni = uni[inrange(uni.index,ge=startdate,le=enddate)]
 		return uni.columns.to_numpy()
 
-	def bars_on(self,dt=None):
+	def bars_on(self,dt=None,mbr_only=False):
 		if(dt is None): dt = self.__asof_date
 		assert dt is not None
-		return self._universe_abc__d0.loc[dt].unstack(level=-1)
+		bars_on_dt = self._universe_abc__d0.loc[dt].unstack(level=-1)
+		if(mbr_only):
+			mbr_symbols = self.symbols_at(dt)
+			bars_on_dt = bars_on_dt.loc[mbr_symbols]
+		return bars_on_dt
+
