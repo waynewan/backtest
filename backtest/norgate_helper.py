@@ -163,7 +163,7 @@ def load_history_for_symbols(symbols,pp_opt={}):
 # --
 # -- control
 # --
-def cache_clear():
+def clear_cache():
 	load_history.cache_clear()
 	load_index_membership_impl.cache_clear()
 	load_index_universe.cache_clear()
