@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+# -- need anacoda upgrade first -- import talib as ta
 
 # --
 # -- dataload postprocessors
@@ -25,11 +26,25 @@ def pp_ta_ma_cross(symbol,data,*,lperiod=200,speriod=50):
 	return data
 
 # --
-# -- BrokerAccount postprocessors
-# -- compute profit, cum-profit
+# -- compute ATR using TA-lib
+# --
+# -- need anacoda upgrade first -- def pp_ta_atr(symbol,data,*,lperiod=252):
+# -- need anacoda upgrade first -- 	high_vals = data['High'].values.astype('double')
+# -- need anacoda upgrade first -- 	low_vals = data['Low'].values.astype('double')
+# -- need anacoda upgrade first -- 	close_vals = data['Close'].values.astype('double')
+# -- need anacoda upgrade first -- 	atr_vals = ta.ATR( high_vals, low_vals, close_vals, timeperiod=lperiod)
+# -- need anacoda upgrade first -- 	data['atr'] = pd.Series(index=data.index,data=atr_vals)
+# -- need anacoda upgrade first -- 	return data
+
+# --
+# ** BrokerAccount postprocessors
+# ** compute profit, cum-profit
 # --
 def to_df_pp_basic(acc,df):
 	df['profit'] = df['share'] * ( df['exit_price'] - df['entry_price'] ) - df['entry_dollar_commission'] - df['exit_dollar_commission']
+	# --
+	# -- pgain cannot be cumprod, because the trades overlap
+	# --
 	df['pgain'] = ( df['share'] * df['exit_price'] - df['exit_dollar_commission'] ) / ( df['share'] * df['entry_price'] + df['entry_dollar_commission'] ) - 1.0
 	df.sort_values(inplace=True,by='exit_exec_date')
 	df['cumprofit'] = 1 + df['profit'].cumsum() / acc.init_cash()
