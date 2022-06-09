@@ -12,6 +12,9 @@ import pandas as pd
 def to_df_pp_old_behavior(acc,df):
 	df0 = df.loc[:,(
 		'_Position__symbol',
+		'share',
+		'entry_price',
+		'exit_price',
 		'entry_exec_date',
 		'exit_exec_date'
 	)].copy()
@@ -20,7 +23,10 @@ def to_df_pp_old_behavior(acc,df):
 		'entry_exec_date':'entry_date',
 		'exit_exec_date':'exit_date',
 	},inplace=True)
+	df0['total_dollar_comm'] = df['entry_dollar_commission'] + df['exit_dollar_commission']
+	df0['duration'] = ( df['exit_exec_date'] - df['entry_exec_date'] ).astype('timedelta64[D]').astype(int)
 	df0['profit'] = df['share'] * ( df['exit_price'] - df['entry_price'] ) - df['entry_dollar_commission'] - df['exit_dollar_commission']
+	df0['p_gain'] = df0['profit'] / ( df['share'] * df['entry_price'] + df['entry_dollar_commission'] ) * 100.00
 	df0.sort_values(inplace=True,by='exit_date')
 	df0['cumprofit'] = 1 + df0['profit'].cumsum() / acc.init_cash()
 	return df0
