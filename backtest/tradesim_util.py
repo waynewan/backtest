@@ -47,8 +47,8 @@ def account_profit_summary2(account):
 	failedpos_lst = sorted(list(failedpos.values()))
 	# --
 	return { 
-		"# closed trades", len(closedpos_lst),
-		"# failed trades", len(failedpos_lst),
+		"# closed trades": len(closedpos_lst),
+		"# failed trades": len(failedpos_lst),
 	}
 
 def summary_extractor(*,cfg_acc_pairs,cfg_extractor,acc_extractor):
