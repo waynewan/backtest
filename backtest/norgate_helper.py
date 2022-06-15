@@ -145,18 +145,18 @@ def load_ng_historical(symbol,startdate=str_to_dt('1970-01-01'),enddate=None,int
 	return pricedata
 
 @functools.lru_cache(maxsize=8000)
-def load_history(symbol,pp_opt=None):
-	ngprice = load_ng_historical(symbol).copy()
+def load_history(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
+	ngprice = load_ng_historical(symbol,startdate=startdate,enddate=enddate,interval=interval).copy()
 	for pp in postprocessors(pp_opt) :
 		pp(symbol,ngprice)
 	return ngprice
 
-def load_history_for_symbols(symbols,pp_opt={}):
+def load_history_for_symbols(symbols,pp_opt={},startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	pp_opt_json = json.dumps(pp_opt)
 	pricehistory = {}
 	symbar = tqdm(symbols,leave=None,desc="history")
 	for symbol in symbar:
-		pricehistory[symbol] = load_history(symbol,pp_opt=pp_opt_json)
+		pricehistory[symbol] = load_history(symbol,pp_opt=pp_opt_json,startdate=startdate,enddate=enddate,interval=interval)
 	pricehistory = pd.concat(pricehistory.values(),keys=pricehistory.keys(),axis=1)
 	return pricehistory
 

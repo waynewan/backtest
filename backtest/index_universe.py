@@ -33,7 +33,8 @@ class IndexUniverse(universe_abc):
 
 	def __load_d0(self,pp_opt):
 		symbols = self.__membership.columns.to_numpy()
-		df = ngu.load_history_for_symbols(symbols,pp_opt)
+		df = ngu.load_history_for_symbols(symbols,pp_opt,startdate=self.__startdate,enddate=self.__enddate)
+		df = df[inrange(df.index,ge=self.__startdate,le=self.__enddate)]
 		return df
 	# --
 	# --
