@@ -14,6 +14,22 @@ def plot_multilines_by_category(df,*,category,xcol,ycol):
 	df0 = df.pivot(index=xcol,columns=category,values=ycol)
 	df0.plot()
 
+def create_pivots_by_category(data,*,index,columns,values,categoryColumns=None):
+	if(categoryColumns is None):
+		categoryColumns = list( data.columns ) 
+		categoryColumns.pop(categoryColumns.index(index))
+		categoryColumns.pop(categoryColumns.index(columns))
+		categoryColumns.pop(categoryColumns.index(values))
+	categories = data.loc[:,categoryColumns].drop_duplicates()
+	cat_to_pivots = {}
+	for ii in range(0,len(categories)):
+		ii_category = categories.iloc[ii]
+		df = (data.loc[:,categoryColumns]==ii_category).all(axis=1)
+		df = data[df].loc[:,(index,columns,values)]
+		df = df.pivot(index=index,columns=columns,values=values)
+		cat_to_pivots[ii_category.to_json()] = df
+	return cat_to_pivots
+
 def plot_3d_surface(title=None,data=None,ax=None):
 	# --
 	# -- use pivot(index=summary.columns[0],columns=summary.columns[1],values=summary.columns[2])
@@ -41,20 +57,4 @@ def plot_3d_surfaces(pivots,figsize=(40,40),arragement=33):
 	for k,v in pivots.items():
 		plt_id += 1
 		plot_3d_surface(title=str(k),data=v,ax=fig.add_subplot(plt_id, projection='3d'))
-
-def create_pivots_by_category(data,*,index,columns,values,categoryColumns=None):
-	if(categoryColumns is None):
-		categoryColumns = list( data.columns ) 
-		categoryColumns.pop(categoryColumns.index(index))
-		categoryColumns.pop(categoryColumns.index(columns))
-		categoryColumns.pop(categoryColumns.index(values))
-	categories = data.loc[:,categoryColumns].drop_duplicates()
-	cat_to_pivots = {}
-	for ii in range(0,len(categories)):
-		ii_category = categories.iloc[ii]
-		df = (data.loc[:,categoryColumns]==ii_category).all(axis=1)
-		df = data[df].loc[:,(index,columns,values)]
-		df = df.pivot(index=index,columns=columns,values=values)
-		cat_to_pivots[ii_category.to_json()] = df
-	return cat_to_pivots
 
