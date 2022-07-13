@@ -76,7 +76,7 @@ class Tradesim(tradesim_abc):
 		active_trades = tuple( account.positions(PositionState.ACTIVE).values() )
 		for pos in active_trades:
 			bar = bars.loc[pos.symbol]
-			stopout_msg = self.__exitalgo.check_stopout_cond(dt,pos,bar)
+			stopout_msg = self.__exitalgo.check_stopout_cond(dt,pos,bar,bars)
 			if(stopout_msg is not None):
 				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exit_delay)
 

@@ -14,7 +14,7 @@ class exitalgo_abc(metaclass=abc.ABCMeta):
 	# -- otherwise, return None
 	# --
 	@abc.abstractmethod
-	def check_stopout_cond(self,dt,pos,bar):
+	def check_stopout_cond(self,dt,pos,bar,bars):
 		pass
 
 	@abc.abstractmethod

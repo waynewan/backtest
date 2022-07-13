@@ -34,9 +34,9 @@ class exitalgo_list(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar):
+	def check_stopout_cond(self,dt,pos,bar,bars):
 		for key,algo in self.__algos.items():
-			result = algo.check_stopout_cond(dt,pos,bar)
+			result = algo.check_stopout_cond(dt,pos,bar,bars)
 			if(result is not None):
 				return "/".join([key,result])
 		return None
