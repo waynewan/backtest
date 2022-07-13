@@ -28,7 +28,7 @@ class exitalgo_target_price(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars):
+	def check_stopout_cond(self,dt,pos,bar,bars,universe):
 		if(bar['Close']>=pos.exit_conditions['target_price'].value):
 			return "target_price_reach"
 		return None

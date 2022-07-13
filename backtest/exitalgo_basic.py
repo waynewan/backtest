@@ -29,7 +29,7 @@ class exitalgo_basic(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars):
+	def check_stopout_cond(self,dt,pos,bar,bars,universe):
 		if(bar['note']=='LAST_BAR'):
 			return "end_of_listing"
 		return None

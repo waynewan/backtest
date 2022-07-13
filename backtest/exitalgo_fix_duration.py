@@ -28,7 +28,7 @@ class exitalgo_fix_duration(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars):
+	def check_stopout_cond(self,dt,pos,bar,bars,universe):
 		if(dt>=pos.exit_conditions['duration_stop'].value):
 			return "target_exit_date"
 		return None

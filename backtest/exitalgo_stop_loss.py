@@ -28,7 +28,7 @@ class exitalgo_stop_loss(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars):
+	def check_stopout_cond(self,dt,pos,bar,bars,universe):
 		if(bar['Close']<=pos.exit_conditions['stop_loss'].value):
 			return "stop_loss_reach"
 		return None
