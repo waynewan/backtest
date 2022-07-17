@@ -59,14 +59,12 @@ class BrokerAccount:
 
 	def deposit(self,*,date,amount,msg):
 		assert amount>=0
-		#date = __0_date_str__(date)
 		new_amount = self.__cash.value + amount
 		self.__cash.value = new_amount,date,msg
 		return new_amount
 
 	def withdraw(self,*,date,amount,msg):
 		assert amount>=0
-		#date = __0_date_str__(date)
 		new_amount = self.__cash.value - amount
 		self.__cash.value = new_amount,date,msg
 		return new_amount
@@ -104,7 +102,6 @@ class BrokerAccount:
 		return new_position
 
 	def fail_open(self,position,*,date,msg):
-		#date = __0_date_str__(date)
 		orig_state = position.status
 		position.fail_open(date=date,msg=msg)
 		self.__manage_position(position,orig_state)
