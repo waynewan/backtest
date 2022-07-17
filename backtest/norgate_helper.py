@@ -147,6 +147,11 @@ def load_ng_historical(symbol,startdate=str_to_dt('1970-01-01'),enddate=None,int
 @functools.lru_cache(maxsize=8000)
 def load_history(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	ngprice = load_ng_historical(symbol,startdate=startdate,enddate=enddate,interval=interval).copy()
+	# --
+	ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
+	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
+	ngprice['note'] = ""
+	# --
 	for pp in postprocessors(pp_opt) :
 		pp(symbol,ngprice)
 	return ngprice
@@ -175,9 +180,6 @@ def clear_cache():
 # -- default price series post processors
 # --
 def pp_ng_default(symbol,data,**kv):
-	data.drop(inplace=True,columns=['Turnover','Dividend'])
-	data.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
-	data['note'] = ""
 	data.loc[data.index[-2:].values,"note"] = "LAST_BAR"
 	data['mbr'] = 0
 	for k,v in kv.items():
