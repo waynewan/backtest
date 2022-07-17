@@ -38,7 +38,7 @@ class exitalgo_stop_loss(exitalgo_abc):
 			"stop_loss" : {
 				'upd_date' : dt,
 				'upd_msg' : None,
-				'new_val' : entry_price * ( 1 - self.__opt["stop_loss_pct"] ),
+				'new_val' : bar['Close'] * ( 1 - self.__opt["stop_loss_pct"] / 100.00 ),
 			},
 		}
 
