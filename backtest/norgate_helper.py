@@ -151,6 +151,7 @@ def load_history(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=No
 	ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
 	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
 	ngprice['note'] = ""
+	ngprice['last_n_bar'] = range(len(ngprice)-1,-1,-1)
 	# --
 	for pp in postprocessors(pp_opt) :
 		pp(symbol,ngprice)

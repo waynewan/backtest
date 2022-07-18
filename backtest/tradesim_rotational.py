@@ -72,11 +72,20 @@ class Tradesim(tradesim_abc):
 				signal=signal,
 				counter=self.__entry_delay)
 
+	def internal__check_stopout_cond(self,dt,pos,bar,bars,universe):
+		if(bar['last_n_bar']>self.__exit_delay):
+			return self.__exitalgo.check_stopout_cond(dt,pos,bar,bars,universe)
+		if(bar['last_n_bar']==self.__exit_delay):
+			return "end_of_listing"
+		elif(bar['last_n_bar']<self.__exit_delay):
+			errmsg = "last_n_bar({}) is less than exit_delay".format(bar['last_n_bar'])
+			raise RuntimeError(errmsg)
+
 	def stage_close_from_strategy(self,dt,account,bars):
 		active_trades = tuple( account.positions(PositionState.ACTIVE).values() )
 		for pos in active_trades:
 			bar = bars.loc[pos.symbol]
-			stopout_msg = self.__exitalgo.check_stopout_cond(dt,pos,bar,bars,self.__universe)
+			stopout_msg = self.internal__check_stopout_cond(dt,pos,bar,bars,self.__universe)
 			if(stopout_msg is not None):
 				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exit_delay)
 
@@ -95,6 +104,12 @@ class Tradesim(tradesim_abc):
 		for ii,pos in enumerate(staged_open):
 			account.fail_open(pos,date=dt,msg="no_exec_open_allowed")
 		
+	def internal__exec_open_final_check(self,symbol,bar):
+		if(bar['last_n_bar']>self.__entry_delay):
+			return self.__entryalgo.exec_open_final_check(symbol,bar)
+		else:
+			return "end_of_listing"
+
 	def exec_or_fail_stagged_open(self,dt,account,bars):
 		max_new_pos_count = self.__maxpos - len( account.positions(PositionState.ACTIVE) )
 		new_position_dollar_amt = account.cash_value() / max(1,max_new_pos_count) * (1 - self.__expense_ratio )
@@ -106,7 +121,7 @@ class Tradesim(tradesim_abc):
 			elif(new_position_dollar_amt<=0):
 				account.fail_open(pos,date=dt,msg="negative_cash_value")
 			else:
-				final_check_fail_reason = self.__entryalgo.exec_open_final_check(pos.symbol,bars.loc[pos.symbol])
+				final_check_fail_reason = self.internal__exec_open_final_check(pos.symbol,bars.loc[pos.symbol])
 				if(final_check_fail_reason is not None):
 					account.fail_open(pos,date=dt,msg=final_check_fail_reason)
 					return
