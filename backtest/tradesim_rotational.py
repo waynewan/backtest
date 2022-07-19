@@ -3,7 +3,7 @@ import datetime
 import pandas as pd
 from tqdm.auto import tqdm
 from backtest.abc.tradesim_abc import tradesim_abc
-from .account import BrokerAccount,PositionState
+from .account import BrokerAccount,PositionState,Position
 from collections import defaultdict
 from jackutil.auditedvalue import AuditedValue
 
@@ -219,23 +219,25 @@ class Tradesim(tradesim_abc):
 	def __genDailySellList(self,dt64):
 		return []
 
+	def __exec_to_pos(self,exec):
+		pos = Position(exec['symbol'])
+		pos.entry_exec_date = exec['entry_exec_date']
+		pos.entry_price = exec['entry_price']
+		return pos
+
 	def calcTrailingstop(self,executions):
 		for exec in executions:
 			exec['stops'] = defaultdict(lambda : AuditedValue(defval=0.0) )
 		for dt in tqdm(self.__universe.trade_dates,leave=None,desc="calcTrailingstop"):
-			bars_on_dt = self.__universe.bars_on(dt)
+			bars = self.__universe.bars_on(dt)
 			for exec in tqdm(executions,leave=None,desc="executions"):
 				exec_date = exec['entry_exec_date']
 				if(dt<exec_date):
 					continue
 				if(not exec['action']):
 					continue
-				bar = bars_on_dt.loc[exec['symbol']]
+				bar = bars.loc[exec['symbol']]
 				self.__exitalgo.update_map_exit_conditions(
-					dt,pos,bar,bars,self.__universe,
-					# dt,bar,
-					# exec['entry_exec_date'],
-					# exec['entry_price'],
-					# exec['stops'],
+					dt,self.__exec_to_pos(exec),bar,bars,self.__universe,
 				)
 

@@ -171,7 +171,6 @@ class Position:
 	def __init__(self,symbol,counter=1):
 		self.__symbol = symbol
 		self.__status = AuditedValue(PositionState.UNKNOWN)
-		# self.__exit_conditions = defaultdict(lambda : AuditedValue(defval=0.0))
 		self.__exit_conditions = defaultdict(defdict_init)
 		self.note = AuditedValue()
 		self.__staging_counter = counter
