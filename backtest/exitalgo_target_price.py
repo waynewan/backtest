@@ -28,17 +28,17 @@ class exitalgo_target_price(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars,universe):
+	def check_stopout_cond(self,dt,pos,bar):
 		if(bar['Close']>=pos.exit_conditions['target_price'].value):
 			return "target_price_reach"
 		return None
 
-	def calc_all_exit_conditions(self,dt,bar,*,entry_exec_date,entry_price):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		return {
 			"target_price" : {
 				'upd_date' : dt,
 				'upd_msg' : None,
-				'new_val' : entry_price * ( 1 + self.__opt["target_price_pct"] ),
+				'new_val' : pos.entry_price * ( 1 + self.__opt["target_price_pct"] ),
 			},
 		}
 

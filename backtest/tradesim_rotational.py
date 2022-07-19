@@ -72,9 +72,9 @@ class Tradesim(tradesim_abc):
 				signal=signal,
 				counter=self.__entry_delay)
 
-	def internal__check_stopout_cond(self,dt,pos,bar,bars,universe):
+	def internal__check_stopout_cond(self,dt,pos,bar):
 		if(bar['last_n_bar']>self.__exit_delay):
-			return self.__exitalgo.check_stopout_cond(dt,pos,bar,bars,universe)
+			return self.__exitalgo.check_stopout_cond(dt,pos,bar)
 		if(bar['last_n_bar']==self.__exit_delay):
 			return "end_of_listing"
 		elif(bar['last_n_bar']<self.__exit_delay):
@@ -85,7 +85,7 @@ class Tradesim(tradesim_abc):
 		active_trades = tuple( account.positions(PositionState.ACTIVE).values() )
 		for pos in active_trades:
 			bar = bars.loc[pos.symbol]
-			stopout_msg = self.internal__check_stopout_cond(dt,pos,bar,bars,self.__universe)
+			stopout_msg = self.internal__check_stopout_cond(dt,pos,bar)
 			if(stopout_msg is not None):
 				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exit_delay)
 
@@ -93,10 +93,7 @@ class Tradesim(tradesim_abc):
 		for pos in account.positions(PositionState.ACTIVE).values():
 			bar = bars.loc[pos.symbol]
 			self.__exitalgo.update_map_exit_conditions(
-				dt,bar,
-				pos.entry_exec_date,
-				pos.entry_price,
-				pos.exit_conditions
+				dt,pos,bar,bars,self.__universe,
 			)
 	
 	def flush_stagged_open_no_allow(self,dt,account,bars):
@@ -235,9 +232,10 @@ class Tradesim(tradesim_abc):
 					continue
 				bar = bars_on_dt.loc[exec['symbol']]
 				self.__exitalgo.update_map_exit_conditions(
-					dt,bar,
-					exec['entry_exec_date'],
-					exec['entry_price'],
-					exec['stops'],
+					dt,pos,bar,bars,self.__universe,
+					# dt,bar,
+					# exec['entry_exec_date'],
+					# exec['entry_price'],
+					# exec['stops'],
 				)
 

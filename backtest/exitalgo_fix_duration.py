@@ -28,17 +28,17 @@ class exitalgo_fix_duration(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars,universe):
+	def check_stopout_cond(self,dt,pos,bar):
 		if(dt>=pos.exit_conditions['duration_stop'].value):
 			return "target_exit_date"
 		return None
 
-	def calc_all_exit_conditions(self,dt,bar,*,entry_exec_date,entry_price):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		return {
 			"duration_stop" : {
 				'upd_date' : dt,
 				'upd_msg' : None,
-				'new_val' : entry_exec_date + np.timedelta64(self.__opt["duration"],'D'),
+				'new_val' : pos.entry_exec_date + np.timedelta64(self.__opt["duration"],'D'),
 			},
 		}
 

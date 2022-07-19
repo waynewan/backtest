@@ -28,12 +28,12 @@ class exitalgo_stop_loss(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars,universe):
+	def check_stopout_cond(self,dt,pos,bar):
 		if(bar['Close']<=pos.exit_conditions['stop_loss'].value):
 			return "stop_loss_reach"
 		return None
 
-	def calc_all_exit_conditions(self,dt,bar,*,entry_exec_date,entry_price):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		return {
 			"stop_loss" : {
 				'upd_date' : dt,

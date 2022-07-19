@@ -31,7 +31,7 @@ class exitalgo_step_targets(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars,universe):
+	def check_stopout_cond(self,dt,pos,bar):
 		if(pos.exit_conditions['step_target_price'].value>=bar['Close']):
 			return "target_price_reach"
 		return None
@@ -52,12 +52,12 @@ class exitalgo_step_targets(exitalgo_abc):
 				return entry_price + entry_price * lhs[1] / 100.00 
 		return entry_price + entry_price * self.__table[-1][1][1] / 100.00 
 		
-	def calc_all_exit_conditions(self,dt,bar,*,entry_exec_date,entry_price):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		return {
 			"step_target_price" : {
 				'upd_date' : dt,
 				'upd_msg' : None,
-				'new_val' : self.compute_stop_price(bar,entry_price),
+				'new_val' : self.compute_stop_price(bar,pos.entry_price),
 			},
 		}
 

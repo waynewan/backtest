@@ -34,17 +34,17 @@ class exitalgo_list(exitalgo_abc):
 	# -- return reason string if exit triggered
 	# -- otherwise, return None
 	# --
-	def check_stopout_cond(self,dt,pos,bar,bars,universe):
+	def check_stopout_cond(self,dt,pos,bar):
 		for key,algo in self.__algos.items():
-			result = algo.check_stopout_cond(dt,pos,bar,bars,universe)
+			result = algo.check_stopout_cond(dt,pos,bar)
 			if(result is not None):
 				return "/".join([key,result])
 		return None
 
-	def calc_all_exit_conditions(self,dt,bar,*,entry_exec_date,entry_price):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		allconds = {}
 		for akey,algo in self.__algos.items():
-			conds = algo.calc_all_exit_conditions(dt,bar,entry_exec_date=entry_exec_date,entry_price=entry_price)
+			conds = algo.calc_all_exit_conditions(dt,pos,bar,bars,universe)
 			allconds.update(conds)
 		return allconds
 
