@@ -1,5 +1,6 @@
 from backtest import norgate_helper as ngu
 from backtest.abc import sysfilter_abc
+from jackutil.microfunc import inrange
 import pandas as pd
 import numpy as np
 
@@ -12,21 +13,41 @@ class sysfilter_schedule(sysfilter_abc.sysfilter_abc):
 		self.__opt = opt
 		self.__load(**self.__opt)
 
-	def __load(self,*,symbol,duration=None,window=1):
+	def __load(self,*,symbol,loader_fn=None,date_range=None,**kv):
 		bm_hist = ngu.load_ng_historical(symbol)
-		# --
+		bm_hist = pd.Series(data=bm_hist.index)
+		if(date_range is not None):
+			bm_hist = bm_hist[inrange(bm_hist,ge=date_range[0], lt=date_range[1])]
+		if(loader_fn is None):
+			self._d0 = self.__def_load_fn(bm_hist,**kv)
+		elif(type(loader_fn)=="function"):
+			self._d0 = loader_fn(bm_hist,**kv)
+		elif(loader_fn=="ALGO_1"):
+			self._d0 = self.__def_load_fn(bm_hist,**kv)
+		elif(loader_fn=="ALGO_2"):
+			self._d0 = bm_hist
+		else:
+			raise RuntimeError("unknown loader_fn:{}".format(loader_fn))
+
+	# --
+	# -- window is positive integer >= 1
+	# --
+	def __def_load_fn(self,bm_hist,window,width=1):
 		rhs = bm_hist
 		bm_hist = rhs.iloc[0:1]
 		rhs = rhs.iloc[1:]
 		while( len(rhs)>0 ):
-			next_date = bm_hist.iloc[-1].name + np.timedelta64(duration,'D')
-			lhs = rhs.loc[rhs.index<=next_date]
-			rhs = rhs.loc[rhs.index>next_date]
-			bm_hist = bm_hist.append(lhs.iloc[-window:-1])
-		self._d0 = bm_hist
+			next_date = bm_hist.iloc[-1] + np.timedelta64(window,'D')
+			lhs = rhs.loc[rhs<=next_date]
+			rhs = rhs.loc[rhs>next_date]
+			if(len(lhs)==0):
+				lhs = rhs.iloc[0:1]
+				rhs = rhs.iloc[1:]
+			bm_hist = bm_hist.append(lhs.iloc[-width:])
+		return bm_hist
 
 	def allow_entry(self,dt):
-		return (dt in self._d0.index)
+		return (dt in self._d0)
 
 	def allow_exit(self,dt):
 		return True
@@ -36,4 +57,3 @@ class sysfilter_schedule(sysfilter_abc.sysfilter_abc):
 	# --
 	def _read_opt(self): return self.__opt
 	opt = property(_read_opt,None,None)
-
