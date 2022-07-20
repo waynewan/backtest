@@ -219,15 +219,18 @@ class Tradesim(tradesim_abc):
 	def __genDailySellList(self,dt64):
 		return []
 
-	def __exec_to_pos(self,exec):
+	def __exec_to_pos(self,exec,cache):
+		key = ( exec['symbol'], exec['entry_exec_date'], exec['entry_price'] )
+		if(key in cache):
+			return cache[key]
 		pos = Position(exec['symbol'])
 		pos.entry_exec_date = exec['entry_exec_date']
 		pos.entry_price = exec['entry_price']
+		cache[key] = pos
 		return pos
 
 	def calcTrailingstop(self,executions):
-		for exec in executions:
-			exec['stops'] = defaultdict(lambda : AuditedValue(defval=0.0) )
+		pos_cache = {}
 		for dt in tqdm(self.__universe.trade_dates,leave=None,desc="calcTrailingstop"):
 			bars = self.__universe.bars_on(dt)
 			for exec in tqdm(executions,leave=None,desc="executions"):
@@ -237,7 +240,9 @@ class Tradesim(tradesim_abc):
 				if(not exec['action']):
 					continue
 				bar = bars.loc[exec['symbol']]
+				pos = self.__exec_to_pos(exec,pos_cache)
 				self.__exitalgo.update_map_exit_conditions(
-					dt,self.__exec_to_pos(exec),bar,bars,self.__universe,
+					dt,pos,bar,bars,self.__universe,
 				)
+				exec['stops'] = pos.exit_conditions
 
