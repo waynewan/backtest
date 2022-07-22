@@ -217,16 +217,12 @@ class Tradesim(tradesim_abc):
 			return EMPTY_topCandidates_Return
 
 	def __genDailySellList(self,dt64):
-		return []
+		return [ 'NOT_IMPL' ]
 
-	def __exec_to_pos(self,exec,cache):
-		key = ( exec['symbol'], exec['entry_exec_date'], exec['entry_price'] )
-		if(key in cache):
-			return cache[key]
+	def __exec_to_pos(self,exec):
 		pos = Position(exec['symbol'])
 		pos.entry_exec_date = exec['entry_exec_date']
 		pos.entry_price = exec['entry_price']
-		cache[key] = pos
 		return pos
 
 	def calcTrailingstop(self,executions):
@@ -240,7 +236,11 @@ class Tradesim(tradesim_abc):
 				if(not exec['action']):
 					continue
 				bar = bars.loc[exec['symbol']]
-				pos = self.__exec_to_pos(exec,pos_cache)
+				# --
+				key = ( exec['symbol'], exec['entry_exec_date'], exec['entry_price'] )
+				if(key not in pos_cache): pos_cache[key] = self.__exec_to_pos(exec)
+				pos = pos_cache[key]
+				# --
 				self.__exitalgo.update_map_exit_conditions(
 					dt,pos,bar,bars,self.__universe,
 				)
