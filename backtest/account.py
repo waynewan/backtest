@@ -4,6 +4,7 @@ from . import postprocessor
 from collections import defaultdict
 from enum import Enum
 import pandas as pd
+import logging
 
 # --
 # -- BrokerAccount postprocessors
@@ -56,14 +57,17 @@ class BrokerAccount:
 	def __init__(self):
 		self.__cash = AuditedValue(defval=0.0)
 		self.__positions = { s:{} for s in PositionState }
+		self.__logger = logging.getLogger(__name__)
 
 	def deposit(self,*,date,amount,msg):
+		self.__logger.debug("deposit: %s", locals())
 		assert amount>=0
 		new_amount = self.__cash.value + amount
 		self.__cash.value = new_amount,date,msg
 		return new_amount
 
 	def withdraw(self,*,date,amount,msg):
+		self.__logger.debug("withdraw: %s", locals())
 		assert amount>=0
 		new_amount = self.__cash.value - amount
 		self.__cash.value = new_amount,date,msg
@@ -96,22 +100,26 @@ class BrokerAccount:
 		return pp(self,df)
 
 	def stage_open(self,*,date,symbol,msg,signal=None,counter=None):
+		self.__logger.debug("stage_open: %s", locals())
 		new_position = Position(symbol)
 		new_position.stage_open(date=date,msg=msg,signal=signal,counter=counter)
 		self.__manage_position(new_position)
 		return new_position
 
 	def fail_open(self,position,*,date,msg):
+		self.__logger.debug("fail_open: %s", locals())
 		orig_state = position.status
 		position.fail_open(date=date,msg=msg)
 		self.__manage_position(position,orig_state)
 
 	def stage_close(self,position,*,date,msg,signal=None,counter=None):
+		self.__logger.debug("stage_close: %s", locals())
 		orig_state = position.status
 		position.stage_close(date=date,msg=msg,signal=signal,counter=counter)
 		self.__manage_position(position,orig_state)
 
 	def try_exec_open(self,position,*,date,share,price,expense,msg):
+		self.__logger.debug("try_exec_open: %s", locals())
 		if( not position.reduce_staging_counter()):
 			return None
 		return self.exec_open(position,
@@ -122,6 +130,7 @@ class BrokerAccount:
 			msg=msg)
 
 	def exec_open(self,position,*,date,share,price,expense,msg):
+		self.__logger.debug("exec_open: %s", locals())
 		assert share>0
 		assert price>=0
 		assert expense>=0
@@ -132,6 +141,7 @@ class BrokerAccount:
 		return transaction_cost
 
 	def try_exec_close(self,position,*,date,price,expense,msg):
+		self.__logger.debug("try_exec_close: %s", locals())
 		if( not position.reduce_staging_counter()):
 			return None
 		return self.exec_close(position,
@@ -141,6 +151,7 @@ class BrokerAccount:
 			msg=msg)
 
 	def exec_close(self,position,*,date,price,expense,msg):
+		self.__logger.debug("exec_close: %s", locals())
 		orig_state = position.status
 		transaction_cost = position.exec_close(date=date,price=price,expense=expense,msg=msg)
 		self.__manage_position(position,orig_state)

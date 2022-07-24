@@ -9,6 +9,7 @@ from jackutil.auditedvalue import AuditedValue
 
 class Tradesim(tradesim_abc):
 	def __init__(self,*,entryalgo,exitalgo,universe,sysfilter,opt):
+		super().__init__()
 		self.__maxpos = opt["maxpos"]
 		self.__expense_ratio = opt["expense_ratio"]
 		self.__init_capital= opt["init_capital"]
@@ -18,6 +19,7 @@ class Tradesim(tradesim_abc):
 		self.__exitalgo = exitalgo
 		self.__universe = universe
 		self.__sysfilter = sysfilter
+		self.__logger = self._tradesim_abc__logger
 
 	# --
 	# --
@@ -63,6 +65,7 @@ class Tradesim(tradesim_abc):
 
 	def stage_open_from_strategy(self,dt,account,bars):
 		buy_list = self.__entryalgo.buy_list_on(dt,bars,self.__universe)
+		self.__logger.debug("buy_list: dt=%s; sym=%s", dt, buy_list[1].tolist())
 		for symbol in buy_list[1]:
 			signal = buy_list[0][symbol]
 			account.stage_open(
@@ -87,6 +90,7 @@ class Tradesim(tradesim_abc):
 			bar = bars.loc[pos.symbol]
 			stopout_msg = self.internal__check_stopout_cond(dt,pos,bar)
 			if(stopout_msg is not None):
+				self.__logger.debug("stopout: dt=%s; sym=%s; reason=%s", dt, pos.symbol, stopout_msg)
 				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exit_delay)
 
 	def update_account_exit_conditions(self,dt,account,bars):
