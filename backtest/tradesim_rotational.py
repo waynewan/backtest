@@ -93,12 +93,28 @@ class Tradesim(tradesim_abc):
 				self.__logger.debug("stopout: dt=%s; sym=%s; reason=%s", dt, pos.symbol, stopout_msg)
 				account.stage_close(pos,date=dt,msg=stopout_msg,counter=self.__exit_delay)
 
+	# --
+	# -- chandelier all exit
+	# --
+	def update_pos_exit_conditions(self,dt,pos,bar,bars,universe):
+		new_conds = self.__exitalgo.calc_all_exit_conditions(
+			dt=dt,pos=pos,
+			bar=bar,bars=bars,
+			universe=universe
+		)
+		for kk,nc in new_conds.items():
+			self.update_pos_exit_condition(xcmap=pos.exit_conditions,cond_name=kk,**nc)
+
+	def update_pos_exit_condition(self,*,xcmap,cond_name,new_val,upd_date,upd_msg=None):
+		existing_val = xcmap[cond_name]
+		if(not existing_val.hasvalue() or existing_val.value<new_val):
+			self.__logger.debug("updated stop name=%s, old=%s, new=%s", cond_name, existing_val.value, new_val)
+			existing_val.value = (new_val,upd_date,upd_msg)
+		
 	def update_account_exit_conditions(self,dt,account,bars):
 		for pos in account.positions(PositionState.ACTIVE).values():
 			bar = bars.loc[pos.symbol]
-			self.__exitalgo.update_map_exit_conditions(
-				dt,pos,bar,bars,self.__universe,
-			)
+			self.update_pos_exit_conditions( dt,pos,bar,bars,self.__universe )
 	
 	def flush_stagged_open_no_allow(self,dt,account,bars):
 		staged_open = tuple( account.positions(PositionState.STAGED_OPEN).values() )
@@ -245,8 +261,6 @@ class Tradesim(tradesim_abc):
 				if(key not in pos_cache): pos_cache[key] = self.__exec_to_pos(exec)
 				pos = pos_cache[key]
 				# --
-				self.__exitalgo.update_map_exit_conditions(
-					dt,pos,bar,bars,self.__universe,
-				)
+				self.update_pos_exit_conditions( dt,pos,bar,bars,self.__universe )
 				exec['stops'] = pos.exit_conditions
 
