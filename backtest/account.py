@@ -99,9 +99,9 @@ class BrokerAccount:
 			return df
 		return pp(self,df)
 
-	def stage_open(self,*,date,symbol,msg,signal=None,counter=None):
+	def stage_open(self,*,date,uid,symbol,msg,signal=None,counter=None):
 		self.__logger.debug("stage_open: %s", locals())
-		new_position = Position(symbol)
+		new_position = Position(uid,symbol)
 		new_position.stage_open(date=date,msg=msg,signal=signal,counter=counter)
 		self.__manage_position(new_position)
 		return new_position
@@ -179,7 +179,11 @@ def defdict_init():
 	return AuditedValue(defval=0.0)
 
 class Position:
-	def __init__(self,symbol,counter=1):
+	# --
+	# -- uid can be any type, any value, as long as the combination generate a unique __key__
+	# --
+	def __init__(self,uid,symbol,counter=1):
+		self.__uid = uid
 		self.__symbol = symbol
 		self.__status = AuditedValue(PositionState.UNKNOWN)
 		self.__exit_conditions = defaultdict(defdict_init)
@@ -248,6 +252,10 @@ class Position:
 		return self.__status.value
 
 	@property
+	def uid(self):
+		return self.__uid
+
+	@property
 	def symbol(self):
 		return self.__symbol
 
@@ -271,8 +279,9 @@ class Position:
 	# --
 	# --
 	def __str__(self):
-		return "Position({},{},{},{},{},{},{},{},{})".format(
+		return "Position({},{},{},{},{},{},{},{},{},{})".format(
 			str(self.entry_signal_date),
+			self.__uid,
 			self.__symbol,
 			self.share,
 			self.__status,
@@ -290,8 +299,9 @@ class Position:
 	# --
 	# --
 	def __key__(self):
-		return "Position:{},{}".format( 
+		return "Position:{},{},{}".format( 
 			str(self.entry_signal_date), 
+			self.__uid,
 			self.__symbol )
 	def __hash__(self):
 		return hash(self.__key__())

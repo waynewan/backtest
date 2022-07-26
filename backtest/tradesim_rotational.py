@@ -66,10 +66,11 @@ class Tradesim(tradesim_abc):
 	def stage_open_from_strategy(self,dt,account,bars):
 		buy_list = self.__entryalgo.buy_list_on(dt,bars,self.__universe)
 		self.__logger.debug("buy_list: dt=%s; sym=%s", dt, buy_list[1].tolist())
-		for symbol in buy_list[1]:
+		for uid,symbol in enumerate(buy_list[1]):
 			signal = buy_list[0][symbol]
 			account.stage_open(
 				date=dt,
+				uid=uid,
 				symbol=symbol,
 				msg='buy_list',
 				signal=signal,
@@ -240,7 +241,7 @@ class Tradesim(tradesim_abc):
 		return [ 'NOT_IMPL' ]
 
 	def __exec_to_pos(self,exec):
-		pos = Position(exec['symbol'])
+		pos = Position(exec['uid'], exec['symbol'])
 		pos.entry_exec_date = exec['entry_exec_date']
 		pos.entry_price = exec['entry_price']
 		return pos
@@ -257,7 +258,7 @@ class Tradesim(tradesim_abc):
 					continue
 				bar = bars.loc[exec['symbol']]
 				# --
-				key = ( exec['symbol'], exec['entry_exec_date'], exec['entry_price'] )
+				key = ( exec['uid'], exec['symbol'], exec['entry_exec_date'], exec['entry_price'] )
 				if(key not in pos_cache): pos_cache[key] = self.__exec_to_pos(exec)
 				pos = pos_cache[key]
 				# --
