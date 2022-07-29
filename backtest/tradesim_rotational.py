@@ -250,7 +250,7 @@ class Tradesim(tradesim_abc):
 		pos_cache = {}
 		for dt in tqdm(self.__universe.trade_dates,leave=None,desc="calcTrailingstop"):
 			bars = self.__universe.bars_on(dt)
-			for exec in tqdm(executions,leave=None,desc="executions"):
+			for exec in executions: # tqdm(executions,leave=None,desc="executions"):
 				exec_date = exec['entry_exec_date']
 				if(dt<exec_date):
 					continue
