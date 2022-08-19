@@ -82,8 +82,12 @@ class Tradesim(tradesim_abc):
 		if(bar['last_n_bar']==self.__exit_delay):
 			return "end_of_listing"
 		elif(bar['last_n_bar']<self.__exit_delay):
-			errmsg = "last_n_bar({}) is less than exit_delay".format(bar['last_n_bar'])
+			errmsg = "last_n_bar({}) is less than exit_delay({}); pos={}".format(
+				bar['last_n_bar'],self.__exit_delay,pos
+			)
 			raise RuntimeError(errmsg)
+			# print(errmsg)
+			# return "end_of_listing"
 
 	def stage_close_from_strategy(self,dt,account,bars):
 		active_trades = tuple( account.positions(PositionState.ACTIVE).values() )
@@ -123,7 +127,8 @@ class Tradesim(tradesim_abc):
 			account.fail_open(pos,date=dt,msg="no_exec_open_allowed")
 		
 	def internal__exec_open_final_check(self,symbol,bar):
-		if(bar['last_n_bar']>self.__entry_delay):
+		last_n_bar = bar['last_n_bar']
+		if(last_n_bar>self.__exit_delay and last_n_bar>self.__entry_delay):
 			return self.__entryalgo.exec_open_final_check(symbol,bar)
 		else:
 			return "end_of_listing"
