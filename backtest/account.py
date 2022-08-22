@@ -64,6 +64,7 @@ class BrokerAccount:
 		assert amount>=0
 		new_amount = self.__cash.value + amount
 		self.__cash.value = new_amount,date,msg
+		self.__logger.debug("cashvalue: %f", self.__cash.value)
 		return new_amount
 
 	def withdraw(self,*,date,amount,msg):
@@ -71,6 +72,7 @@ class BrokerAccount:
 		assert amount>=0
 		new_amount = self.__cash.value - amount
 		self.__cash.value = new_amount,date,msg
+		self.__logger.debug("cashvalue: %f", self.__cash.value)
 		return new_amount
 
 	def init_cash(self):
@@ -137,7 +139,7 @@ class BrokerAccount:
 		orig_state = position.status
 		transaction_cost = position.exec_open(date=date,share=share,price=price,expense=expense,msg=msg)
 		self.__manage_position(position,orig_state)
-		self.withdraw(date=date,amount=abs(transaction_cost),msg="exec_open {}".format(position))
+		self.withdraw(date=date,amount=-transaction_cost,msg="exec_open {}".format(position))
 		return transaction_cost
 
 	def try_exec_close(self,position,*,date,price,expense,msg):
@@ -155,7 +157,7 @@ class BrokerAccount:
 		orig_state = position.status
 		transaction_cost = position.exec_close(date=date,price=price,expense=expense,msg=msg)
 		self.__manage_position(position,orig_state)
-		self.deposit(date=date,amount=abs(transaction_cost),msg="exec_close {}".format(position))
+		self.deposit(date=date,amount=transaction_cost,msg="exec_close {}".format(position))
 		return transaction_cost
 
 	def __manage_position(self,position,orig_state=PositionState.UNKNOWN):
@@ -225,7 +227,7 @@ class Position:
 		self.entry_price = price
 		self.share = share
 		self.__status.value = PositionState.ACTIVE,date,msg
-		transaction_cost = -(share * price + expense)
+		transaction_cost = -(share * price) - expense
 		return transaction_cost
 		
 	def stage_close(self,*,date,msg,signal=None,counter=None):
@@ -240,7 +242,7 @@ class Position:
 		self.exit_exec_date = date
 		self.exit_price = price
 		self.__status.value = PositionState.CLOSED,date,msg
-		transaction_cost = -(self.share * price + expense)
+		transaction_cost = (self.share * price) - expense
 		return transaction_cost
 		
 	@property
