@@ -19,13 +19,11 @@ class sysfilter_schedule(sysfilter_abc.sysfilter_abc):
 		if(date_range is not None):
 			bm_hist = bm_hist[inrange(bm_hist,ge=date_range[0], lt=date_range[1])]
 		if(loader_fn is None):
+			self._d0 = bm_hist
+		elif(loader_fn=="default"):
 			self._d0 = self.__def_load_fn(bm_hist,**kv)
 		elif(type(loader_fn)=="function"):
 			self._d0 = loader_fn(bm_hist,**kv)
-		elif(loader_fn=="ALGO_1"):
-			self._d0 = self.__def_load_fn(bm_hist,**kv)
-		elif(loader_fn=="ALGO_2"):
-			self._d0 = bm_hist
 		else:
 			raise RuntimeError("unknown loader_fn:{}".format(loader_fn))
 
@@ -47,7 +45,8 @@ class sysfilter_schedule(sysfilter_abc.sysfilter_abc):
 		return bm_hist
 
 	def allow_entry(self,dt):
-		return (dt in self._d0)
+		allow_entry_test = (dt in self._d0.tolist() )
+		return allow_entry_test
 
 	def allow_exit(self,dt):
 		return True
