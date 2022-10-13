@@ -259,7 +259,7 @@ class Tradesim(tradesim_abc):
 				exec_date = exec['entry_exec_date']
 				if(dt<exec_date):
 					continue
-				if(not exec['action']):
+				if(not exec['action'] or exec['action'] !='BUY'):
 					continue
 				bar = bars.loc[exec['symbol']]
 				# --
