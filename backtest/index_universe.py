@@ -11,6 +11,7 @@ class IndexUniverse(universe_abc):
 	def __init__(self,*,opt,pp):
 		super().__init__()
 		self.__indexname = opt['indexname']
+		self.__test_only = opt.get('test_only',None)
 		self.__startdate = opt['date_range'][0]
 		self.__enddate   = opt['date_range'][1]
 		self.__membership,self.__nominal_size = self.__load_membership()
@@ -26,9 +27,12 @@ class IndexUniverse(universe_abc):
 
 	def __load_membership(self):
 		df = ngu.load_index_membership(self.__indexname)
+		nominal_size = ngu.member_count_for(self.__indexname)
+		if(self.__test_only is not None):
+			df = df[ self.__test_only ]
+			nominal_size = len(self.__test_only)
 		df = df[inrange(df.index,ge=self.__startdate,le=self.__enddate)]
 		membership = df.dropna(axis=1,how='all')
-		nominal_size = ngu.member_count_for(self.__indexname)
 		return (membership,nominal_size)
 
 	def __load_d0(self,pp_opt):
