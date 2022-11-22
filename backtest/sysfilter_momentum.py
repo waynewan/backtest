@@ -4,7 +4,7 @@ import pandas as pd
 # --
 # --
 # --
-class sysfilter_abs_momentum(sysfilter_abc.sysfilter_abc):
+class sysfilter_momentum(sysfilter_abc.sysfilter_abc):
 	def __init__(self,*,opt):
 		super().__init__()
 		self.__opt = opt
