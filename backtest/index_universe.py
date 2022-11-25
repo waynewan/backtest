@@ -17,7 +17,10 @@ class IndexUniverse(universe_abc):
 		self.__membership,self.__nominal_size = self.__load_membership()
 		# --
 		self._universe_abc__trade_dates = self.__membership.index.to_numpy()
-		self._universe_abc__d0 = self.__load_d0(pp)
+		self.__interval = 'D'
+		if('interval' in opt):
+			self.__interval = opt['interval']
+		self._universe_abc__d0 = self.__load_d0(self.__interval,pp)
 
 	def __load_membership_cached(self):
 		key = self.__indexname
@@ -35,9 +38,9 @@ class IndexUniverse(universe_abc):
 		membership = df.dropna(axis=1,how='all')
 		return (membership,nominal_size)
 
-	def __load_d0(self,pp_opt):
+	def __load_d0(self,interval,pp_opt):
 		symbols = self.__membership.columns.to_numpy()
-		df = ngu.load_history_for_symbols(symbols,pp_opt,startdate=self.__startdate,enddate=self.__enddate)
+		df = ngu.load_history_for_symbols(symbols,pp_opt,startdate=self.__startdate,enddate=self.__enddate,interval=self.__interval)
 		df = df[inrange(df.index,ge=self.__startdate,le=self.__enddate)]
 		return df
 	# --
