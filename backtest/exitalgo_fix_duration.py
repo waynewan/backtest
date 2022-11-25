@@ -33,7 +33,7 @@ class exitalgo_fix_duration(exitalgo_abc):
 			return "target_exit_date"
 		return None
 
-	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe,sysfilter):
 		return {
 			"duration_stop" : {
 				'upd_date' : dt,

@@ -18,6 +18,6 @@ class exitalgo_abc(metaclass=abc.ABCMeta):
 		pass
 
 	@abc.abstractmethod
-	def calc_all_exit_conditions(self,*,dt,pos,bar,bars,universe):
+	def calc_all_exit_conditions(self,*,dt,pos,bar,bars,universe,sysfilter):
 		pass
 

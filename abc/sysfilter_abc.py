@@ -13,6 +13,9 @@ class sysfilter_abc(metaclass=abc.ABCMeta):
 	def allow_exit(self,dt):
 		pass
 
+	def current_market_condition(self,dt):
+		return {}
+
 	# --
 	# -- properties
 	# --

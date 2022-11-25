@@ -37,6 +37,9 @@ class sysfilter_momentum(sysfilter_abc.sysfilter_abc):
 	def allow_exit(self,dt):
 		return True
 
+	def current_market_condition(self,dt):
+		return {}
+
 	# --
 	# --
 	# --

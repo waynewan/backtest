@@ -52,7 +52,7 @@ class exitalgo_step_targets(exitalgo_abc):
 				return entry_price + entry_price * lhs[1] / 100.00 
 		return entry_price + entry_price * self.__table[-1][1][1] / 100.00 
 		
-	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe,sysfilter):
 		return {
 			"step_target_price" : {
 				'upd_date' : dt,

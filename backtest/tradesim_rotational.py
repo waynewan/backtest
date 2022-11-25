@@ -101,11 +101,12 @@ class Tradesim(tradesim_abc):
 	# --
 	# -- chandelier all exit
 	# --
-	def update_pos_exit_conditions(self,dt,pos,bar,bars,universe):
+	def update_pos_exit_conditions(self,dt,pos,bar,bars):
 		new_conds = self.__exitalgo.calc_all_exit_conditions(
 			dt=dt,pos=pos,
 			bar=bar,bars=bars,
-			universe=universe
+			universe=self.__universe,
+			sysfilter=self.__sysfilter,
 		)
 		for kk,nc in new_conds.items():
 			self.update_pos_exit_condition(xcmap=pos.exit_conditions,cond_name=kk,**nc)
@@ -119,7 +120,7 @@ class Tradesim(tradesim_abc):
 	def update_account_exit_conditions(self,dt,account,bars):
 		for pos in account.positions(PositionState.ACTIVE).values():
 			bar = bars.loc[pos.symbol]
-			self.update_pos_exit_conditions( dt,pos,bar,bars,self.__universe )
+			self.update_pos_exit_conditions( dt,pos,bar,bars )
 	
 	def flush_stagged_open_no_allow(self,dt,account,bars):
 		staged_open = tuple( account.positions(PositionState.STAGED_OPEN).values() )
@@ -267,6 +268,6 @@ class Tradesim(tradesim_abc):
 				if(key not in pos_cache): pos_cache[key] = self.__exec_to_pos(exec)
 				pos = pos_cache[key]
 				# --
-				self.update_pos_exit_conditions( dt,pos,bar,bars,self.__universe )
+				self.update_pos_exit_conditions( dt,pos,bar,bars )
 				exec['stops'] = pos.exit_conditions
 

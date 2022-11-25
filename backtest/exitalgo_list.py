@@ -41,10 +41,10 @@ class exitalgo_list(exitalgo_abc):
 				return "/".join([key,result])
 		return None
 
-	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe,sysfilter):
 		allconds = {}
 		for akey,algo in self.__algos.items():
-			conds = algo.calc_all_exit_conditions(dt,pos,bar,bars,universe)
+			conds = algo.calc_all_exit_conditions(dt,pos,bar,bars,universe,sysfilter)
 			allconds.update(conds)
 		return allconds
 
