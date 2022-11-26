@@ -33,7 +33,7 @@ class exitalgo_target_price(exitalgo_abc):
 			return "target_price_reach"
 		return None
 
-	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe,sysfilter):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		return {
 			"target_price" : {
 				'upd_date' : dt,

@@ -45,7 +45,7 @@ class exitalgo_stop_loss(exitalgo_abc):
 		effective_after_date = pos.entry_exec_date + np.timedelta64(effective_after_days,'D')
 		return dt >= effective_after_date
 
-	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe,sysfilter):
+	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
 		new_val = 0
 		if(self.is_stoploss_effective(dt,pos)):
 			new_val = ( 1 - self.__opt["stop_loss_pct"] / 100.00 ) * self.get_stoploss_anchor_price(pos,bar)

@@ -106,7 +106,6 @@ class Tradesim(tradesim_abc):
 			dt=dt,pos=pos,
 			bar=bar,bars=bars,
 			universe=self.__universe,
-			sysfilter=self.__sysfilter,
 		)
 		for kk,nc in new_conds.items():
 			self.update_pos_exit_condition(xcmap=pos.exit_conditions,cond_name=kk,**nc)
