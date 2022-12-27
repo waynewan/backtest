@@ -36,13 +36,13 @@ def benchmark_for(indexname):
 def member_count_for(indexname):
 	return _g_index_database_[indexname][2]
 
-@functools.lru_cache(maxsize=8000)
+@functools.lru_cache(maxsize=12000)
 def load_index_universe(indexname):
 	watchlist = watchlist_for(indexname)
 	symbols = ng.watchlist_symbols(watchlist)
 	return symbols
 
-@functools.lru_cache(maxsize=8000)
+@functools.lru_cache(maxsize=12000)
 def load_ng_index_membership(indexname,symbol,startdate=str_to_dt('1970-01-01'),enddate=None):
 	mbr_array = ng.index_constituent_timeseries(
 		symbol,
@@ -55,7 +55,7 @@ def load_ng_index_membership(indexname,symbol,startdate=str_to_dt('1970-01-01'),
 	mbr_array.replace(0,math.nan,inplace=True)
 	return mbr_array
 
-@functools.lru_cache(maxsize=8000)
+@functools.lru_cache(maxsize=12000)
 def load_index_membership_impl(indexname,symbols):
 	mbr_arrays = []
 	symbar = tqdm(symbols,leave=None,desc="index")
@@ -96,7 +96,7 @@ def members(memberships,as_of_date,indexname=None,threshold=None,exact=True):
 # --
 # -- major exch traded
 # --
-@functools.lru_cache(maxsize=8000)
+@functools.lru_cache(maxsize=12000)
 def load_ng_major_exch_listed(symbol):
 	majexch = ng.major_exchange_listed_timeseries(
 		symbol,
@@ -118,7 +118,7 @@ def load_major_exch_membership(symbols):
 # --
 # -- price series
 # --
-@functools.lru_cache(maxsize=8000)
+@functools.lru_cache(maxsize=12000)
 def postprocessors(pp_opt):
 	# !!
 	# !! does not provide default, let it fail, !!
@@ -144,7 +144,7 @@ def load_ng_historical(symbol,startdate=str_to_dt('1970-01-01'),enddate=None,int
 	)
 	return pricedata
 
-@functools.lru_cache(maxsize=8000)
+@functools.lru_cache(maxsize=12000)
 def load_history(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	ngprice = load_ng_historical(symbol,startdate=startdate,enddate=enddate,interval=interval).copy()
 	# --
