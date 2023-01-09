@@ -10,6 +10,17 @@ def plot_account_cumprofit(account,title=None):
 	df0 = account.to_dataframe()
 	df0.plot(x='exit_date',y='cumprofit',logy=True,figsize=(12,8),title=title)
 
+def plot_account_cumprofit2(account):
+	axl = plt.subplot(2,1,1)
+	df0.plot(ax=axl, x='exit_date',y='cumprofit',logy=True,title='cumprofit',figsize=(20,16))
+	df0['maxprofit'] = df0['cumprofit'].cummax()
+	df0.plot(ax=axl, x='exit_date',y='maxprofit',logy=True,title='maxprofit',figsize=(20,16),alpha=0.5)
+	plt.show()
+	axl = plt.subplot(2,1,2)
+	df0['drwdwn'] = df0['cumprofit'] / df0['maxprofit'] - 1.0
+	df0.plot(ax=axl, x='exit_date',y='drwdwn',title='drwdwn',figsize=(20,8))
+	plt.show()
+
 def plot_multilines_by_category(df,*,category,xcol,ycol):
 	df0 = df.pivot(index=xcol,columns=category,values=ycol)
 	df0.plot()
