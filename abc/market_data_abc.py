@@ -6,6 +6,10 @@ class marketdata_abc(metaclass=abc.ABCMeta):
 		pass
 
 	@abc.abstractmethod
+	def member_count_for(self,name,short):
+		pass
+
+	@abc.abstractmethod
 	def load_index_universe(self,name,short):
 		pass
 

@@ -1,6 +1,5 @@
 from jackutil.microfunc import callable_fq_name,dt64_to_dt
 from backtest.abc.exitalgo_abc import exitalgo_abc
-from backtest import norgate_helper
 from datetime import timedelta
 import pandas as pd
 import numpy as np

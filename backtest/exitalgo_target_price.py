@@ -1,6 +1,5 @@
 from jackutil.microfunc import callable_fq_name
 from backtest.abc.exitalgo_abc import exitalgo_abc
-from backtest import norgate_helper
 import pandas as pd
 import numpy as np
 

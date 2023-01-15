@@ -16,30 +16,30 @@ import math
 # --
 # -- export utilities
 # --
-def export_index(ng=None,ngcsv=None,short=None,name=None):
+def export_index(ng=None,ngoff=None,short=None,name=None):
 	mbr = ng.load_index_membership(name=name,short=short)
-	ngcsv.store_index_membersihp(mbr,name=name,short=short)
+	ngoff.store_index_membersihp(mbr,name=name,short=short)
 	return mbr
 
-def export_indexes(ng=None,ngcsv=None,shorts=None):
+def export_indexes(ng=None,ngoff=None,shorts=None):
 	symbols = set()
 	for short in tqdm(shorts,desc='indexes'):
-		mbr = export_index(ng=ng,ngcsv=ngcsv,short=short)
+		mbr = export_index(ng=ng,ngoff=ngoff,short=short)
 		symbols.update(mbr.columns)
 	return symbols
 
-def export_symbol(ng=None,ngcsv=None,symbol=None):
+def export_symbol(ng=None,ngoff=None,symbol=None):
 	ohlc = _private_load_ng_historical(symbol)
-	ngcsv.store_symbol(ohlc,symbol)
+	ngoff.store_symbol(ohlc,symbol)
 	return ohlc
 
-def export_symbols(ng=None,ngcsv=None,symbols=None):
+def export_symbols(ng=None,ngoff=None,symbols=None):
 	for symbol in tqdm(symbols,leave=None,desc='export symbols'):
-		_ = export_symbol(ng=ng,ngcsv=ngcsv,symbol=symbol)
+		_ = export_symbol(ng=ng,ngoff=ngoff,symbol=symbol)
 		
-def export_indexes_and_members(ng=None,ngcsv=None,shorts=None):
-	symbols_set = export_indexes(ng=ng,ngcsv=ngcsv,shorts=shorts)
-	export_symbols(ng=ng,ngcsv=ngcsv,symbols=symbols_set)
+def export_indexes_and_members(ng=None,ngoff=None,shorts=None):
+	symbols_set = export_indexes(ng=ng,ngoff=ngoff,shorts=shorts)
+	export_symbols(ng=ng,ngoff=ngoff,symbols=symbols_set)
 	return symbols_set
 
 # --
@@ -55,9 +55,11 @@ indexes = (
 	( "S&P 600"     , "s600",  "IJR",       600 ,    "S&P SmallCap 600 Current & Past"   ),
 	( "S&P 1500"    , "s1500", "IWV",       1500,    "S&P Composite 1500 Current & Past" ),
 	( "NASDAQ 100"  , "n100",  "QQQ",       100 ,    "NASDAQ 100 Current & Past"         ),
+	( "economic"    , "econ",  "DIA",         0 ,    "economic"                          ),
+	( "benchmark"   , "bmrk",  "DIA",         0 ,    "benchmark ETFs"                    ),
 )
 indexes_df = pd.DataFrame(indexes[1:], columns=indexes[0])
-all_index_shorts = indexes_df['short'].tolist()
+all_index_shorts = indexes_df[indexes_df['count']>0]['short'].tolist()
 # --
 # --
 # --
@@ -96,9 +98,16 @@ def _private_load_index_membership_impl(watchlist,symbols=None):
 	mbr_df = pd.concat(mbr_arrays,axis=1)
 	return mbr_df
 
+def economic_data_series(symbol):
+	if(symbol.startswith('%')):
+		return True
+
 @functools.lru_cache(maxsize=12000)
 def _private_load_history_impl(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	ngprice = _private_load_ng_historical(symbol,startdate=startdate,enddate=enddate,interval=interval).copy()
+	# --
+	if(economic_data_series(symbol)):
+		return ngprice
 	# --
 	ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
 	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
@@ -139,11 +148,20 @@ def _private_postprocessors(pp_opt):
 # --
 # --
 class Norgate(marketdata_abc):
-	def __init__(self):
+	def __init__(self,*,opt=None):
 		super().__init__()
 	# --
 	# --
 	# --
+	def member_count_for(self,name=None,short=None):
+		if(name is not None):
+			index = indexes_df[indexes_df['name']==name]
+			return index.iloc[0]['count']
+		elif(short is not None):
+			index = indexes_df[indexes_df['short']==short]
+			return index.iloc[0]['count']
+		raise ValueError("missing name/short")
+
 	def load_index_membership(self,name=None,short=None,symbols=None):
 		watchlist = _private_watchlist_for(name=name,short=short)
 		if(symbols is None):

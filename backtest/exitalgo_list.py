@@ -10,7 +10,8 @@ class exitalgo_list(exitalgo_abc):
 		self.__opt = opt
 		self.__algos = {}
 		for key,spec in self.__opt.items():
-			self.__algos[key] = cfg_to_obj(opt,key,self.__algos)
+			if(not key.startswith("__")):
+				self.__algos[key] = cfg_to_obj(opt,key,self.__algos)
 	# --
 	# --
 	# --

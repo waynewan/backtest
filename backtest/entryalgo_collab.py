@@ -1,7 +1,6 @@
 from jackutil.containerutil import cfg_to_obj
 from jackutil.microfunc import inrange,callable_fq_name,concat_lists
 from backtest.abc.entryalgo_abc import entryalgo_abc
-from backtest import norgate_helper
 import pandas as pd
 import numpy as np
 import talib as ta

@@ -20,8 +20,20 @@ def init_export_folder(target_folder=None,must_be_empty=True):
 		raise FileNotFoundError(f"{target_folder} is not empty")
 	# --
 	os.mkdir(f'{target_folder}/mbr')
+	os.mkdir(f'{target_folder}/oth')
 	for cc in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ":
 		os.mkdir(f'{target_folder}/{cc}')
+
+def check_export_folder(folder=None):
+	if(folder==None):
+		raise FileNotFoundError(f"folder cannot be None")
+	if(not(os.path.isdir(folder))):
+		raise FileNotFoundError(f"{folder} is not a valid directory")
+	if(not(os.path.isdir(f'{folder}/mbr'))):
+		raise FileNotFoundError(f"{folder}/mbr is not a valid directory")
+	for cc in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ":
+		if(not(os.path.isdir(f'{folder}/{cc}'))):
+			raise FileNotFoundError(f"{folder}/{cc} is not a valid directory")
 
 # --
 # --
@@ -36,6 +48,8 @@ indexes = (
 	( "S&P 600"     , "IJR",       600 ,    "s600",  "mbr/mbr_s600.par"  ),
 	( "S&P 1500"    , "IWV",       1500,    "s1500", "mbr/mbr_s1500.par" ),
 	( "NASDAQ 100"  , "QQQ",       100 ,    "n100",  "mbr/mbr_n100.par"  ),
+	( "economic"    , "DIA",       100 ,    "econ",  "mbr/mbr_econ.par"  ),
+	( "benchmark"   , "DIA",       100 ,    "bmrk",  "mbr/mbr_bmrk.par"  ),
 )
 indexes_df = pd.DataFrame(indexes[1:], columns=indexes[0])
 # --
@@ -43,6 +57,8 @@ indexes_df = pd.DataFrame(indexes[1:], columns=indexes[0])
 # --
 def symbol_filename_for(name):
 	subfolder = name[0].upper()
+	if(subfolder not in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+		subfolder = "oth"
 	return f'{subfolder}/{name}.par'
 
 def index_filename_for(name=None,short=None):
@@ -75,9 +91,16 @@ def _private_load_historical_impl(symbol,loc=None,startdate=str_to_dt('1970-01-0
 		d0 = d0[inrange(d0.index,ge=startdate,le=enddate)]
 	return d0
 
+def economic_data_series(symbol):
+	if(symbol.startswith('%')):
+		return True
+
 @functools.lru_cache(maxsize=12000)
 def _private_load_history_impl(symbol,pp_opt=None,loc=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	ngprice = _private_load_historical_impl(symbol,loc=loc,startdate=startdate,enddate=enddate,interval=interval).copy()
+	# --
+	if(economic_data_series(symbol)):
+		return ngprice
 	# --
 	ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
 	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
@@ -106,19 +129,32 @@ def _private_postprocessors(pp_opt):
 # --
 # --
 class NorgateOffline(marketdata_abc):
-	def __init__(self,loc):
+	def __init__(self,*,opt):
 		super().__init__()
-		self.__loc = loc
+		if(type(opt)==type(str)):
+			self.__folder = opt
+		else:
+			self.__folder = opt['folder']
+		check_export_folder(self.__folder)
 	# --
 	# --
 	# --
-	def _read_loc(self): return self.__loc
-	loc = property(_read_loc,None,None)
+	def _read_loc(self): return self.__folder
+	folder = property(_read_loc,None,None)
 	# --
 	# -- abstractmethod impl
 	# --
+	def member_count_for(self,name=None,short=None):
+		if(name is not None):
+			index = indexes_df[indexes_df['name']==name]
+			return index.iloc[0]['count']
+		elif(short is not None):
+			index = indexes_df[indexes_df['short']==short]
+			return index.iloc[0]['count']
+		raise ValueError("missing name/short")
+
 	def load_index_membership(self,name=None,short=None,symbols=None):
-		full_mbr_matrix = _private_load_index_membership_impl(loc=self.__loc,name=name,short=short)
+		full_mbr_matrix = _private_load_index_membership_impl(loc=self.__folder,name=name,short=short)
 		if(symbols is None):
 			return full_mbr_matrix
 		return full_mbr_matrix[symbols]
@@ -132,7 +168,7 @@ class NorgateOffline(marketdata_abc):
 		return _private_load_history_impl(
 			symbol,
 			pp_opt=pp_opt_json,
-			loc=self.__loc,
+			loc=self.__folder,
 			startdate=startdate,
 			enddate=enddate,
 			interval=interval
@@ -146,7 +182,7 @@ class NorgateOffline(marketdata_abc):
 			pricehistory[symbol] = _private_load_history_impl(
 				symbol,
 				pp_opt=pp_opt_json,
-				loc=self.__loc,
+				loc=self.__folder,
 				startdate=startdate,
 				enddate=enddate,
 				interval=interval
@@ -159,13 +195,13 @@ class NorgateOffline(marketdata_abc):
 	# --
 	def store_index_membersihp(self,df,name=None,short=None):
 		filename = index_filename_for(name=name,short=short)
-		fullpath = f'{self.__loc}/{filename}'
+		fullpath = f'{self.__folder}/{filename}'
 		df.to_parquet(fullpath)
 		return fullpath
 	
 	def store_symbol(self,df,symbol):
 		filename = symbol_filename_for(symbol)
-		fullpath = f'{self.__loc}/{filename}'
+		fullpath = f'{self.__folder}/{filename}'
 		df.to_parquet(fullpath)
 		return df
 

@@ -14,8 +14,17 @@ def build_postprocessor(*pp_list):
 		pps.append(pp)
 	return pps
 
+def_excl = ['entryalgo', 'exitalgo', 'universe', 'sysfilter', 'simulator']
+def build_objects(rtcfg, built_obj_map, excl=def_excl):
+	if(built_obj_map is None):
+		built_obj_map = {}
+	for name in rtcfg.keys():
+		if(name not in excl):
+			_ = cfg_to_obj(rtcfg,name,built_obj_map)
+	return built_obj_map
+	
 def build_simulator(rtcfg):
-	built_obj_map = {}
+	built_obj_map = build_objects(rtcfg, {})
 	entryalgo = cfg_to_obj(rtcfg,"entryalgo",built_obj_map)
 	exitalgo = cfg_to_obj(rtcfg,"exitalgo",built_obj_map)
 	pp_opt = build_postprocessor( *entryalgo.postprocessor(), *exitalgo.postprocessor())

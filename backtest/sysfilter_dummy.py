@@ -1,4 +1,3 @@
-from backtest import norgate_helper as ngu
 from backtest.abc import sysfilter_abc
 import pandas as pd
 # --

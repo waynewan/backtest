@@ -1,6 +1,5 @@
 from jackutil.microfunc import str_to_dt,inrange
 from backtest.abc.universe_abc import universe_abc
-from . import norgate_helper as ngu
 import datetime
 import pandas as pd
 
@@ -14,6 +13,7 @@ class IndexUniverse(universe_abc):
 		self.__test_only = opt.get('test_only',None)
 		self.__startdate = opt['date_range'][0]
 		self.__enddate   = opt['date_range'][1]
+		self.__dsrc = self.__get_dsrc(**opt)
 		self.__membership,self.__nominal_size = self.__load_membership()
 		# --
 		self._universe_abc__trade_dates = self.__membership.index.to_numpy()
@@ -22,6 +22,9 @@ class IndexUniverse(universe_abc):
 			self.__interval = opt['interval']
 		self._universe_abc__d0 = self.__load_d0(self.__interval,pp)
 
+	def __get_dsrc(self, __linker__, datasource='datasource', **kv):
+		return __linker__(datasource)
+
 	def __load_membership_cached(self):
 		key = self.__indexname
 		if(key not in _cached_index_membership_):
@@ -29,8 +32,8 @@ class IndexUniverse(universe_abc):
 		return _cached_index_membership_[key]
 
 	def __load_membership(self):
-		df = ngu.load_index_membership(self.__indexname)
-		nominal_size = ngu.member_count_for(self.__indexname)
+		df = self.__dsrc.load_index_membership(name=self.__indexname)
+		nominal_size = self.__dsrc.member_count_for(name=self.__indexname)
 		if(self.__test_only is not None):
 			df = df[ self.__test_only ]
 			nominal_size = len(self.__test_only)
@@ -40,7 +43,7 @@ class IndexUniverse(universe_abc):
 
 	def __load_d0(self,interval,pp_opt):
 		symbols = self.__membership.columns.to_numpy()
-		df = ngu.load_history_for_symbols(symbols,pp_opt,startdate=self.__startdate,enddate=self.__enddate,interval=self.__interval)
+		df = self.__dsrc.load_history_for_symbols(symbols,pp_opt,startdate=self.__startdate,enddate=self.__enddate,interval=self.__interval)
 		df = df[inrange(df.index,ge=self.__startdate,le=self.__enddate)]
 		return df
 	# --
