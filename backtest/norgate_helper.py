@@ -21,8 +21,8 @@ _g_index_database_ = {
 	"S&P 400" : ( "S&P MidCap 400 Current & Past", "IJH", 400 ),
 	"S&P 600" : ( "S&P SmallCap 600 Current & Past", "IJR", 600 ),
 	"S&P 1500" : ( "S&P Composite 1500 Current & Past", "IWV", 1500 ),
-	"NASDAQ 100" : ( "NASDAQ 100 Current & Past", "QQQ", 100 ),
-	"NASDAQ 50" : ( "NASDAQ Q-50 Current & Past", "QQQ", 50 ),
+	"NASDAQ 100" : ( "Nasdaq 100 Current & Past", "QQQ", 100 ),
+	"NASDAQ 50" : ( "Nasdaq Q-50 Current & Past", "QQQ", 50 ),
 }
 # --
 # -- index membership loaders

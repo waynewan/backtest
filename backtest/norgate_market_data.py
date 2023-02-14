@@ -54,7 +54,7 @@ indexes = (
 	( "S&P 400"     , "s400",  "IJH",       400 ,    "S&P MidCap 400 Current & Past"     ),
 	( "S&P 600"     , "s600",  "IJR",       600 ,    "S&P SmallCap 600 Current & Past"   ),
 	( "S&P 1500"    , "s1500", "IWV",       1500,    "S&P Composite 1500 Current & Past" ),
-	( "NASDAQ 100"  , "n100",  "QQQ",       100 ,    "NASDAQ 100 Current & Past"         ),
+	( "NASDAQ 100"  , "n100",  "QQQ",       100 ,    "Nasdaq 100 Current & Past"         ),
 	( "economic"    , "econ",  "DIA",         0 ,    "economic"                          ),
 	( "benchmark"   , "bmrk",  "DIA",         0 ,    "benchmark ETFs"                    ),
 )
