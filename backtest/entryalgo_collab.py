@@ -14,9 +14,12 @@ class entryalgo_collab(entryalgo_abc):
 	def __init__(self,*,opt):
 		super().__init__()
 		self.__opt = opt
-		self.__algos = {}
-		for key,spec in self.__opt.items():
-			self.__algos[key] = cfg_to_obj(opt,key,self.__algos)
+		keys = filter(lambda x:not x.startswith("__"), self.__opt['objs'])
+		self.__algos = { key:None for key in set(keys) }
+
+	def link(self,linker):
+		for key in self.__algos.keys():
+			self.__algos[key] = linker(key)
 	# --
 	# --
 	# --

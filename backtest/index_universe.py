@@ -13,23 +13,24 @@ class IndexUniverse(universe_abc):
 		self.__test_only = opt.get('test_only',None)
 		self.__startdate = opt['date_range'][0]
 		self.__enddate   = opt['date_range'][1]
-		self.__dsrc = self.__get_dsrc(**opt)
+		self.__opt = opt
+		self.__pp = pp
+		self.__interval = self.__opt.get("interval", "D")
+		self.__dsrc = None
+
+	def link(self,linker):
+		self.__dsrc = linker(self.__opt.get("datasource","datasource"))
+
+	def load(self):
 		self.__membership,self.__nominal_size = self.__load_membership()
-		# --
 		self._universe_abc__trade_dates = self.__membership.index.to_numpy()
-		self.__interval = 'D'
-		if('interval' in opt):
-			self.__interval = opt['interval']
-		self._universe_abc__d0 = self.__load_d0(self.__interval,pp)
+		self._universe_abc__d0 = self.__load_d0(self.__interval,self.__pp)
 
-	def __get_dsrc(self, __linker__, datasource='datasource', **kv):
-		return __linker__(datasource)
-
-	def __load_membership_cached(self):
-		key = self.__indexname
-		if(key not in _cached_index_membership_):
-			_cached_index_membership_[key] = self.__load_membership()
-		return _cached_index_membership_[key]
+#	def __load_membership_cached(self):
+#		key = self.__indexname
+#		if(key not in _cached_index_membership_):
+#			_cached_index_membership_[key] = self.__load_membership()
+#		return _cached_index_membership_[key]
 
 	def __load_membership(self):
 		df = self.__dsrc.load_index_membership(name=self.__indexname)

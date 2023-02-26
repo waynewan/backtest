@@ -7,12 +7,16 @@ class sysfilter_momentum(sysfilter_abc.sysfilter_abc):
 	def __init__(self,*,opt):
 		super().__init__()
 		self.__opt = opt
+
+	def link(self,linker):
+		self.__dsrc = linker(self.__opt.get("datasource","datasource"))
+
+	def load(self):
 		self.__load(**self.__opt)
 
-	def __load(self,*,symbol,benchmark,period,window,offset,ptype,smooth,__linker__,datasource='datasource'):
-		dsrc = __linker__(datasource)
-		bm = dsrc.load_history_for_symbol(benchmark)
-		hist0 = dsrc.load_history_for_symbol(symbol)
+	def __load(self,*,symbol,benchmark,period,window,offset,ptype,smooth):
+		bm = self.__dsrc.load_history_for_symbol(benchmark)
+		hist0 = self.__dsrc.load_history_for_symbol(symbol)
 		hist0['r0'] = 100 * ( hist0['Close'] / hist0['Close'].shift(period) - 1)
 		self._d0 = hist0
 		# --

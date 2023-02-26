@@ -22,22 +22,32 @@ def build_objects(rtcfg, built_obj_map, excl=def_excl):
 		if(name not in excl):
 			_ = cfg_to_obj(rtcfg,name,built_obj_map)
 	return built_obj_map
-	
+
+def load_all_objs(built_obj_map):
+	for key,obj in built_obj_map.items():
+		if("load" not in dir(obj)):
+			continue
+		obj.load()
+
 def build_simulator(rtcfg):
 	built_obj_map = build_objects(rtcfg, {})
 	entryalgo = cfg_to_obj(rtcfg,"entryalgo",built_obj_map)
 	exitalgo = cfg_to_obj(rtcfg,"exitalgo",built_obj_map)
+	sysfilter = cfg_to_obj(rtcfg,"sysfilter",built_obj_map)
+	#link_all_objs(built_obj_map)
+	# --
 	pp_opt = build_postprocessor( *entryalgo.postprocessor(), *exitalgo.postprocessor())
 	universe = cfg_to_obj(rtcfg,"universe",built_obj_map,pp=pp_opt)
-	sysfilter = cfg_to_obj(rtcfg,"sysfilter",built_obj_map)
 	sim_build_instr = rtcfg["simulator"]
-	return sim_build_instr["cls"](
+	simulator = sim_build_instr["cls"](
 		opt=sim_build_instr["opt"],
 		universe=universe,
 		sysfilter=sysfilter,
 		entryalgo=entryalgo,
 		exitalgo=exitalgo,
 	)
+	load_all_objs(built_obj_map)
+	return simulator
 
 def account_profit_summary(account):
 	df = account.to_dataframe()

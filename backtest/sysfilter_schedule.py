@@ -10,11 +10,16 @@ class sysfilter_schedule(sysfilter_abc.sysfilter_abc):
 	def __init__(self,*,opt):
 		super().__init__()
 		self.__opt = opt
+		self.__dsrc = None
+
+	def link(self,linker):
+		self.__dsrc = linker(self.__opt.get("datasource","datasource"))
+
+	def load(self):
 		self.__load(**self.__opt)
 
-	def __load(self,*,symbol,loader_fn=None,date_range=None,__linker__,datasource='datasource',**kv):
-		dsrc = __linker__(datasource)
-		bm_hist = dsrc.load_history_for_symbol(symbol)
+	def __load(self,*,symbol,loader_fn=None,date_range=None,**kv):
+		bm_hist = self.__dsrc.load_history_for_symbol(symbol)
 		bm_hist = pd.Series(data=bm_hist.index)
 		if(date_range is not None):
 			bm_hist = bm_hist[inrange(bm_hist,ge=date_range[0], lt=date_range[1])]
