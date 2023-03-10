@@ -113,6 +113,7 @@ def _private_load_history_impl(symbol,pp_opt=None,startdate=str_to_dt('1970-01-0
 	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
 	ngprice['note'] = ""
 	ngprice['last_n_bar'] = range(len(ngprice)-1,-1,-1)
+	ngprice['n_bar'] = range(0,len(ngprice),1)
 	# --
 	for pp in _private_postprocessors(pp_opt) :
 		pp(symbol,ngprice)
