@@ -50,11 +50,17 @@ def build_simulator(rtcfg):
 	return simulator
 
 def account_profit_summary(account):
-	df = account.to_dataframe()
-	if(len(df.index)==0):
-		return [ 0.0 ]
-	profit = df['profit'].sum()
-	return [ profit / account.init_cash() ]
+	df0 = account.to_dataframe()
+	if(len(df0.index)==0):
+		return [ 0.0, 0.0 ]
+	profit = df0['profit'].sum()
+	df0['maxprofit'] = df0['cumprofit'].cummax()
+	df0['drwdwn'] = df0['cumprofit'] / df0['maxprofit'] - 1.0
+	return [ 
+		profit / account.init_cash(), 
+		df0['maxprofit'].max(), 
+		df0['drwdwn'].min(),
+	]
 
 def account_profit_summary2(account):
 	allpositions = account.positions()
