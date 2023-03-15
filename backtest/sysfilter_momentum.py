@@ -1,5 +1,6 @@
 from backtest.abc import sysfilter_abc
 import pandas as pd
+import numpy as np
 # --
 # --
 # --
@@ -15,8 +16,11 @@ class sysfilter_momentum(sysfilter_abc.sysfilter_abc):
 		self.__load(**self.__opt)
 
 	def __load(self,*,symbol,benchmark,period,window,offset,ptype,smooth):
+		compare_dir_adj = np.sign(period)
+		period = abs(period)
+		# --
 		hist0 = self.__dsrc.load_history_for_symbol(symbol)
-		hist0['r0'] = 100 * ( hist0['Close'] / hist0['Close'].shift(period) - 1)
+		hist0['r0'] = compare_dir_adj * 100 * ( hist0['Close'] / hist0['Close'].shift(period) - 1)
 		self._d0 = hist0.copy()
 		if(ptype=="PRICE"):
 			self.__smooth_function(smooth,window)
@@ -26,7 +30,7 @@ class sysfilter_momentum(sysfilter_abc.sysfilter_abc):
 		if(ptype=="YIELD"):
 			self._d0['r0'] = hist0['r0'] - bm['Close'] - offset
 		elif(ptype=="CASH"):
-			bm['r0'] = 100 * ( bm['Close'] / bm['Close'].shift(period) - 1)
+			bm['r0'] = compare_dir_adj * 100 * ( bm['Close'] / bm['Close'].shift(period) - 1)
 			self._d0['r0'] = hist0['r0'] - bm['r0'] - offset
 		else:
 			raise ValueError(f"unknown ptype:{ptype}")
