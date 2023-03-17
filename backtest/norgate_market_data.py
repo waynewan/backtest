@@ -163,14 +163,27 @@ class Norgate(marketdata_abc):
 			return index.iloc[0]['count']
 		raise ValueError("missing name/short")
 
+	# --
+	# -- return table, (col:symbol, row:date)==1 if symbol is index member at date
+	# --
 	def load_index_membership(self,name=None,short=None,symbols=None):
 		watchlist = _private_watchlist_for(name=name,short=short)
 		if(symbols is None):
 			symbols = self.load_index_universe(name=name,short=short)
 		return _private_load_index_membership_impl(watchlist, tuple(symbols))
 
+	# --
+	# -- return symbols list of index, current and past
+	# --
 	def load_index_universe(self,name=None,short=None):
 		watchlist = _private_watchlist_for(name=name,short=short)
+		symbols = ngd.watchlist_symbols(watchlist)
+		return symbols
+
+	# --
+	# -- return symbols list of watchlist
+	# --
+	def load_watchlist_symbols(self,watchlist=None):
 		symbols = ngd.watchlist_symbols(watchlist)
 		return symbols
 
