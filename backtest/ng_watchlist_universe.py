@@ -24,6 +24,11 @@ class NorgateWatchlistUniverse(universe_abc):
 	def load(self):
 		self.__membership,self.__nominal_size = self.__load_symbols()
 		self._universe_abc__d0 = self.__load_d0(self.__interval,self.__pp)
+		# --
+		# -- some symbols in watchlist might be outside requested date range
+		# --
+		self.__membership = self._universe_abc__d0.columns.get_level_values(0).unique()
+		self.__nominal_size = len(self.__membership)
 		self._universe_abc__trade_dates = self._universe_abc__d0.index.to_numpy()
 
 	def __load_symbols(self):

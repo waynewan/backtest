@@ -105,9 +105,14 @@ def economic_data_series(symbol):
 @functools.lru_cache(maxsize=12000)
 def _private_load_history_impl(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	ngprice = _private_load_ng_historical(symbol,startdate=startdate,enddate=enddate,interval=interval).copy()
-	# --
 	if(economic_data_series(symbol)):
 		return ngprice
+	# --
+	if(len(ngprice)==0):
+		# --
+		# -- no data in range
+		# --
+		return None
 	# --
 	ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
 	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
@@ -196,13 +201,15 @@ class Norgate(marketdata_abc):
 		pricehistory = {}
 		symbar = tqdm(symbols,leave=None,desc="history")
 		for symbol in symbar:
-			pricehistory[symbol] = _private_load_history_impl(
+			df = _private_load_history_impl(
 				symbol,
 				pp_opt=pp_opt_json,
 				startdate=startdate,
 				enddate=enddate,
 				interval=interval
 			)
+			if(df is not None):
+				pricehistory[symbol] = df
 		pricehistory = pd.concat(pricehistory.values(),keys=pricehistory.keys(),axis=1)
 		return pricehistory
 
