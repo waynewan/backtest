@@ -14,11 +14,11 @@ class entryalgo_collab(entryalgo_abc):
 	def __init__(self,*,opt):
 		super().__init__()
 		self.__opt = opt
-		keys = filter(lambda x:not x.startswith("__"), self.__opt['objs'])
-		self.__algos = { key:None for key in set(keys) }
+		self.__keys = filter(lambda x:not x.startswith("__"), self.__opt['objs'])
+		self.__algos = { key:None for key in set(self.__keys) }
 
 	def link(self,linker):
-		for key in self.__algos.keys():
+		for key in self.__keys:
 			self.__algos[key] = linker(key)
 	# --
 	# --
@@ -35,12 +35,14 @@ class entryalgo_collab(entryalgo_abc):
 	# --
 	def postprocessor(self):
 		pp_opt = []
-		for algo in self.__algos.values():
+		for key in self.__keys:
+			algo = self.__algos[key]
 			pp_opt = [ *pp_opt, *algo.postprocessor() ]
 		return pp_opt
 
 	def exec_open_final_check(self,symbol,bar):
-		for key,algo in self.__algos.items():
+		for key in self.__keys:
+			algo = self.__algos[key]
 			msg = algo.exec_open_final_check(symbol,bar)
 			if(msg is not None):
 				return msg
@@ -56,7 +58,8 @@ class entryalgo_collab(entryalgo_abc):
 	def buy_list_on(self,dt,bars,universe):
 		all_signals = []
 		all_buylist = []
-		for key,algo in self.__algos.items():
+		for key in self.__keys:
+			algo = self.__algos[key]
 			(signals, buylist) = algo.buy_list_on(dt,bars,universe)
 			all_buylist = concat_lists(all_buylist, buylist)
 			all_signals.append(signals)
