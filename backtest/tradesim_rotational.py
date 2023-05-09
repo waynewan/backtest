@@ -270,3 +270,9 @@ class Tradesim(tradesim_abc):
 				self.update_pos_exit_conditions( dt,pos,bar,bars )
 				exec['stops'] = pos.exit_conditions
 
+	def captureLastClose(self,executions):
+		bars = self.__universe.bars_on(self.__universe.last_trade_date)
+		for exec in executions: # tqdm(executions,leave=None,desc="executions"):
+			bar = bars.loc[exec['symbol']]
+			exec['stops'] = bar['Close']
+
