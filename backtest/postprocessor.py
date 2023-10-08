@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-# -- need anacoda upgrade first -- import talib as ta
 
 # --
 # -- dataload postprocessors
