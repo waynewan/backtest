@@ -10,7 +10,7 @@ class entryalgo_collab(entryalgo_abc):
 	def __init__(self,*,opt):
 		super().__init__()
 		self.__opt = opt
-		self.__keys = filter(lambda x:not x.startswith("__"), self.__opt['objs'])
+		self.__keys = [ x for x in self.__opt['objs'] if(not x.startswith("__")) ]
 		self.__algos = { key:None for key in set(self.__keys) }
 
 	def link(self,linker):
