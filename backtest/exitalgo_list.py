@@ -45,9 +45,6 @@ class exitalgo_list(exitalgo_abc):
 		return None
 
 	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
-		allconds = {}
 		for akey,algo in self.__algos.items():
-			conds = algo.calc_all_exit_conditions(dt,pos,bar,bars,universe)
-			allconds.update(conds)
-		return allconds
+			algo.calc_all_exit_conditions(dt,pos,bar,bars,universe)
 

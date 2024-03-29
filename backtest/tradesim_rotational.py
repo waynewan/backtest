@@ -107,14 +107,6 @@ class Tradesim(tradesim_abc):
 			bar=bar,bars=bars,
 			universe=self.__universe,
 		)
-		for kk,nc in new_conds.items():
-			self.update_pos_exit_condition(xcmap=pos.exit_conditions,cond_name=kk,**nc)
-
-	def update_pos_exit_condition(self,*,xcmap,cond_name,new_val,upd_date,upd_msg=None):
-		existing_val = xcmap[cond_name]
-		if(not existing_val.hasvalue() or existing_val.value<new_val):
-			self.__logger.debug("updated stop name=%s, old=%s, new=%s", cond_name, existing_val.value, new_val)
-			existing_val.value = (new_val,upd_date,upd_msg)
 		
 	def update_account_exit_conditions(self,dt,account,bars):
 		for pos in account.positions(PositionState.ACTIVE).values():

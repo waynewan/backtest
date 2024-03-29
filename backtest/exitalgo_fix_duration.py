@@ -33,11 +33,12 @@ class exitalgo_fix_duration(exitalgo_abc):
 		return None
 
 	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
-		return {
-			"duration_stop" : {
-				'upd_date' : dt,
-				'upd_msg' : None,
-				'new_val' : pos.entry_exec_date + np.timedelta64(self.__opt["duration"],'D'),
-			},
-		}
+		# --
+		# -- only update once
+		# --
+		cond_name = "duration_stop"
+		curval = pos.exit_conditions[cond_name]
+		if(curval.hasvalue()):
+			return
+		curval.value = (pos.entry_exec_date + np.timedelta64(self.__opt["duration"],'D'),dt,None)
 

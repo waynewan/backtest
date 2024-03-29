@@ -33,11 +33,8 @@ class exitalgo_target_price(exitalgo_abc):
 		return None
 
 	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
-		return {
-			"target_price" : {
-				'upd_date' : dt,
-				'upd_msg' : None,
-				'new_val' : pos.entry_price * ( 1 + self.__opt["target_price_pct"] ),
-			},
-		}
-
+		new_val = pos.entry_price * ( 1 + self.__opt["target_price_pct"] )
+		self.update_pos_exit_condition_chandelier(
+			pos, "target_price",
+			new_val, dt, None
+		)

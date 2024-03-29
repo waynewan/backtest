@@ -52,11 +52,9 @@ class exitalgo_step_targets(exitalgo_abc):
 		return entry_price + entry_price * self.__table[-1][1][1] / 100.00 
 		
 	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
-		return {
-			"step_target_price" : {
-				'upd_date' : dt,
-				'upd_msg' : None,
-				'new_val' : self.compute_stop_price(bar,pos.entry_price),
-			},
-		}
+		self.update_pos_exit_condition_chandelier(
+			pos, "step_target_price",
+			self.compute_stop_price(bar,pos.entry_price),
+			dt, None
+		)
 

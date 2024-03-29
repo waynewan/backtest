@@ -48,11 +48,7 @@ class exitalgo_stop_loss(exitalgo_abc):
 		new_val = 0
 		if(self.is_stoploss_effective(dt,pos)):
 			new_val = ( 1 - self.__opt["stop_loss_pct"] / 100.00 ) * self.get_stoploss_anchor_price(pos,bar)
-		return {
-			"stop_loss" : {
-				'upd_date' : dt,
-				'upd_msg' : None,
-				'new_val' : new_val,
-			},
-		}
-
+		self.update_pos_exit_condition_chandelier(
+			pos, "stop_loss",
+			new_val, dt, None
+		)

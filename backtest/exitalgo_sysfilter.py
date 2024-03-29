@@ -38,10 +38,9 @@ class exitalgo_sysfilter(exitalgo_abc):
 		return None
 
 	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
-		return {
-			"not_allow_entry" : {
-				'upd_date' : dt,
-				'upd_msg' : None,
-				'new_val' : not self.__sysfilter.allow_entry(dt),
-			},
-		}
+		self.update_pos_exit_condition_chandelier(
+			pos, "not_allow_entry",
+			not self.__sysfilter.allow_entry(dt),
+			dt, None
+		)
+
