@@ -1,7 +1,7 @@
 from setuptools import setup
 setup(
 	name='backtest',
-	version='0.2.0.4',
+	version='0.2.0.5',
 	description='backtest library',
 	url='#',
 	author='#',
