@@ -45,6 +45,10 @@ class exitalgo_list(exitalgo_abc):
 		return None
 
 	def calc_all_exit_conditions(self,dt,pos,bar,bars,universe):
+		# --
+		# !! pos.exit_conditions is a "defaultdict"
+		# !! does not need store extra information
+		# --
 		for akey,algo in self.__algos.items():
 			algo.calc_all_exit_conditions(dt,pos,bar,bars,universe)
 
