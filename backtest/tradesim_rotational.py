@@ -261,6 +261,7 @@ class Tradesim(tradesim_abc):
 				# --
 				self.update_pos_exit_conditions( dt,pos,bar,bars )
 				exec['stops'] = pos.exit_conditions
+				exec['exit_trigger'] = self.__exitalgo.check_stopout_cond(dt,pos,bar)
 
 	def captureLastClose(self,executions):
 		dt = self.__universe.last_trade_date
