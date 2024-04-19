@@ -26,6 +26,11 @@ class exitalgo_random(exitalgo_abc):
 			self.__random = numpy.random.rand
 			if('seed' in opt and opt['seed'] is not None):
 				numpy.random.seed(opt['seed'])
+		elif(rnd_generator=='custom'):
+			# --
+			# -- rnd_gen: function that generate random number between [0,1]
+			# --
+			self.__random = opt['rnd_gen']
 		elif(rnd_generator=='default'):
 			self.__random = random.random
 			if('seed' in opt and opt['seed'] is not None):
