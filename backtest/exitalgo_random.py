@@ -6,6 +6,17 @@ from backtest.abc.exitalgo_abc import *
 import numpy
 import random
 
+# --
+# -- sample config
+# --
+#	"exitalgo:random" : {
+#		"cls" : exitalgo_random.exitalgo_random,
+#		"opt" : { 
+#			"seed" : None, 
+#			"threshold" : 0.0004, 
+#		}
+#	},
+
 class exitalgo_random(exitalgo_abc):
 	def __init__(self,*,opt):
 		super().__init__()
