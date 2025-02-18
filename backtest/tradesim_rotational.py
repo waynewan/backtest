@@ -7,6 +7,23 @@ from .account import BrokerAccount,PositionState,Position
 from collections import defaultdict
 from jackutil.auditedvalue import AuditedValue
 
+# --
+# !! internal use only
+# --
+class RestrictedUniverseWrapper:
+	def __init__(self,baseUni,restricted_buylist):
+		self.__baseUni = baseUni
+		self.__restricted_set = set(restricted_buylist)
+
+	def symbols_at(self,as_of_date,exact=True):
+		base_symbol = self.__baseUni.symbols_at(as_of_date,exact)
+		return list( set(base_symbol) - self.__restricted_set )
+
+	def bars_on(self,dt=None,mbr_only=False):
+		bars = self.__baseUni.bars_on(dt,mbr_only)
+		restricted_bars = bars[~bars.index.isin(self.__restricted_set)]
+		return restricted_bars
+
 class Tradesim(tradesim_abc):
 	def __init__(self,*,entryalgo,exitalgo,universe,sysfilter,opt):
 		super().__init__()
@@ -15,11 +32,17 @@ class Tradesim(tradesim_abc):
 		self.__init_capital= opt["init_capital"]
 		self.__entry_delay = opt["entry_delay"]
 		self.__exit_delay = opt["exit_delay"]
+		self.__restricted_buylist = opt.get("restricted_buylist",[])
 		self.__entryalgo = entryalgo
 		self.__exitalgo = exitalgo
 		self.__universe = universe
 		self.__sysfilter = sysfilter
 		self.__logger = self._tradesim_abc__logger
+		if(self.__restricted_buylist):
+			print("########################################")
+			print("# restrict_buylist")
+			print(self.__restricted_buylist)
+			print("########################################")
 
 	# --
 	# --
@@ -64,6 +87,9 @@ class Tradesim(tradesim_abc):
 			account.fail_open(pos,date=dt,msg=msg)
 
 	def stage_open_from_strategy(self,dt,account,bars):
+		# --
+		# !! simple restricted list doesn't apply here (during backtesting)
+		# --
 		buy_list = self.__entryalgo.buy_list_on(dt,bars,self.__universe)
 		self.__logger.debug("buy_list: dt=%s; sym=%s", dt, buy_list[1].tolist())
 		for uid,symbol in enumerate(buy_list[1]):
@@ -227,9 +253,10 @@ class Tradesim(tradesim_abc):
 
 	def __genDailyBuyList(self,dt64):
 		self.__universe.asof_date = dt64
-		bars = self.__universe.bars_on(dt64)
 		if(self.__sysfilter.allow_entry(dt64)):
-			return self.__entryalgo.buy_list_on(dt64,bars,self.__universe)
+			restricted_uni = RestrictedUniverseWrapper(self.__universe,self.__restricted_buylist)
+			restricted_bars = restricted_uni.bars_on(dt64)
+			return self.__entryalgo.buy_list_on(dt64,restricted_bars,restricted_uni)
 		else:
 			EMPTY_topCandidates_Return=({},pd.Series([],dtype='str'))
 			return EMPTY_topCandidates_Return
@@ -241,6 +268,7 @@ class Tradesim(tradesim_abc):
 		pos = Position(exec['uid'], exec['symbol'])
 		pos.entry_exec_date = exec['entry_exec_date']
 		pos.entry_price = exec['entry_price']
+		pos.share = float(exec['unit'])
 		return pos
 
 	def calcTrailingstop(self,executions):
