@@ -102,6 +102,10 @@ class Tradesim(tradesim_abc):
 				signal=signal,
 				counter=self.__entry_delay)
 
+	# --
+	# -- this will force exit a position (during backtesting only)
+	# -- if it stop trading (but not drop out of universe)
+	# --
 	def internal__check_stopout_cond(self,dt,pos,bar):
 		if(bar['last_n_bar']>self.__exit_delay):
 			return self.__exitalgo.check_stopout_cond(dt,pos,bar)
