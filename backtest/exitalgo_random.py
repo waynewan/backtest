@@ -33,19 +33,34 @@ class exitalgo_random(exitalgo_abc):
 			# !! value and cannot repeat random sequence
 			# --
 			self.__random = random.SystemRandom().random
-		elif(rnd_generator=='numpy'):
-			self.__random = numpy.random.rand
-			if('seed' in opt and opt['seed'] is not None):
-				numpy.random.seed(opt['seed'])
 		elif(rnd_generator=='custom'):
 			# --
 			# -- rnd_gen: function that generate random number between [0,1]
 			# --
 			self.__random = opt['rnd_gen']
+		elif(rnd_generator=='numpy'):
+			self.__random = numpy.random.rand
+			numpy.random.seed(self.get_random_generator_seed(opt))
 		elif(rnd_generator=='default'):
 			self.__random = random.random
-			if('seed' in opt and opt['seed'] is not None):
-				random.seed(opt['seed'])
+			numpy.random.seed(self.get_random_generator_seed(opt))
+
+	def get_random_generator_seed(self,opt):
+		shared_seed = None
+		if('seed' in opt and opt['seed'] is not None):
+			shared_seed = opt['seed']
+		else:
+			# --
+			# -- keep old behavior
+			# --
+			return None
+		# --
+		# -- unique_seed cannot be None
+		# --
+		unique_seed = 0
+		if('useed' in opt and opt['useed'] is not None):
+			unique_seed = opt['useed']
+		return shared_seed+unique_seed
 	# --
 	# --
 	# --
