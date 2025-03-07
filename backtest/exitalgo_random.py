@@ -40,10 +40,16 @@ class exitalgo_random(exitalgo_abc):
 			self.__random = opt['rnd_gen']
 		elif(rnd_generator=='numpy'):
 			self.__random = numpy.random.rand
-			numpy.random.seed(self.get_random_generator_seed(opt))
+			# --
+			effective_seed = self.get_random_generator_seed(opt)
+			print(f"exitalgo_random/effective_seed:{effective_seed}")
+			numpy.random.seed(effective_seed)
 		elif(rnd_generator=='default'):
 			self.__random = random.random
-			numpy.random.seed(self.get_random_generator_seed(opt))
+			# --
+			effective_seed = self.get_random_generator_seed(opt)
+			print(f"exitalgo_random/effective_seed:{effective_seed}")
+			random.seed(effective_seed)
 
 	def get_random_generator_seed(self,opt):
 		shared_seed = None
@@ -53,6 +59,7 @@ class exitalgo_random(exitalgo_abc):
 			# --
 			# -- keep old behavior
 			# --
+			print("exitalgo_random/seed:None")
 			return None
 		# --
 		# -- unique_seed cannot be None
