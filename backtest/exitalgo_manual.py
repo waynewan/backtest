@@ -33,10 +33,11 @@ class exitalgo_manual(exitalgo_abc):
 		# --
 		for instr in self.__instructions:
 			instr["max_trig"] = instr.get("max_trig",9999)
-		print("########################################")
-		print("# instructions")
-		pprint(self.__instructions)
-		print("########################################")
+		if(self.__instructions):
+			print("########################################")
+			print("# instructions")
+			pprint(self.__instructions)
+			print("########################################")
 	# --
 	# --
 	# --
