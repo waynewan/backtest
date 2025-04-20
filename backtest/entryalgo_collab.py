@@ -57,14 +57,18 @@ class entryalgo_collab(entryalgo_abc):
 		for key in self.__keys:
 			algo = self.__algos[key]
 			(signals, buylist) = algo.buy_list_on(dt,bars,universe)
-			all_buylist = concat_lists(all_buylist, buylist)
+			# -- DEBUG -- print(key, ":", buylist.values)
+			all_buylist.append(set(buylist))
 			all_signals.append(signals)
+		all_buylist = list(set.intersection(*all_buylist))
+		# -- DEBUG -- print("***all***", all_buylist)
 		combined_buylist = pd.Index(all_buylist)
 		combined_signals = {}
 		for symbol in combined_buylist:
 			sym_signals = []
 			for signal in all_signals:
 				if(symbol in signal):
+					# print(sym_signals, signal[symbol])
 					sym_signals = [*sym_signals, *signal[symbol]]
 			combined_signals[symbol] = sym_signals
 		return (combined_signals, combined_buylist)
