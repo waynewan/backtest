@@ -150,12 +150,27 @@ def _private_postprocessors(pp_opt):
 		pp_list.append(functools.partial(funcspec, **fopt))
 	return pp_list
 
+def clear_all_lru_caches():
+	import sys
+	module = sys.modules[__name__]
+	for item_name in dir(module):
+		item = getattr(module, item_name)
+		if callable(item) and hasattr(item, 'cache_clear'):
+			item.cache_clear()
+			print(f"Cleared cache for: {item_name}")
+
+def display_all_update_time():
+	for db in ngd.databases():
+		print(db, ngd.last_database_update_time(db))
+
 # --
 # --
 # --
 class Norgate(marketdata_abc):
 	def __init__(self,*,opt=None):
 		super().__init__()
+		# _clear_all_lru_caches()
+		display_all_update_time()
 	# --
 	# --
 	# --
