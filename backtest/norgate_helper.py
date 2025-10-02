@@ -144,11 +144,19 @@ def load_ng_historical(symbol,startdate=str_to_dt('1970-01-01'),enddate=None,int
 	)
 	return pricedata
 
+def safe_drop(df0, columns):
+	for col in columns:
+		try:
+			df0.drop(inplace=True,columns=[col])
+		except:
+			pass
+
 @functools.lru_cache(maxsize=12000)
 def load_history(symbol,pp_opt=None,startdate=str_to_dt('1970-01-01'),enddate=None,interval="D"):
 	ngprice = load_ng_historical(symbol,startdate=startdate,enddate=enddate,interval=interval).copy()
 	# --
-	ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
+	# ngprice.drop(inplace=True,columns=['Turnover','Dividend'])
+	safe_drop(ngprice,columns=['Turnover','Dividend'])
 	ngprice.rename(inplace=True,columns={ 'Unadjusted Close':'Uclose' })
 	ngprice['note'] = ""
 	ngprice['last_n_bar'] = range(len(ngprice)-1,-1,-1)
