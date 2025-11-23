@@ -25,6 +25,15 @@ _g_index_database_ = {
 	"NASDAQ 50" : ( "Nasdaq Q-50 Current & Past", "QQQ", 50 ),
 }
 # --
+# --
+# --
+def last_update_time_table(extra=['US']):
+	time_table = {}
+	for db in [ *extra, *ng.databases()]:
+		time_table[db] = ng.last_database_update_time(db)
+	return time_table
+
+# --
 # -- index membership loaders
 # --
 def watchlist_for(indexname):
