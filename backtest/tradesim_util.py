@@ -124,3 +124,27 @@ def runBacktest(rtcfg):
 	(account,d0,universe) = simulator.runBacktest()
 	return (account,d0,universe,simulator)
 
+# --
+# --
+# --
+def shortname(fname):
+	keychain = fname.split('/')
+	if(keychain[-1].isdigit()):
+		return '/'.join(keychain[-2:])
+	else:
+		return keychain[-1]
+
+def shortnames(*fnames):
+	briefs = []
+	for fname in fnames:
+		briefs.append(shortname(fname))
+	return briefs
+
+# --
+# --
+# --
+def rename_columns(df,cols_name):
+	if(cols_name is not None):
+		df.rename( columns=lambda ii:cols_name[ii],inplace=True )
+	return df
+
