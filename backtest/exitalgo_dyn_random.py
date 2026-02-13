@@ -1,7 +1,7 @@
 # --
 # --
 # --
-from jackutil.microfunc import if_else
+from jackutil.microfunc import if_else,default_val
 from backtest.abc.exitalgo_abc import *
 import numpy
 import random
@@ -23,7 +23,7 @@ class exitalgo_dyn_random(exitalgo_abc):
 		self.__last_dt = None
 		self.__opt = opt
 		self.__threshold = opt['threshold']
-		self.__toprank = opt['toprank']
+		self.__toprank = default_val(opt.get('toprank'), 1.0)
 		self.__multiplier = opt['multiplier']
 		# --
 		# -- setup random generator
