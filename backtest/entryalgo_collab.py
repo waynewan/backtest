@@ -1,8 +1,16 @@
 from jackutil.containerutil import cfg_to_obj
-from jackutil.microfunc import inrange,callable_fq_name,concat_lists
+from jackutil.microfunc import inrange,callable_fq_name,concat_lists,default_val
 from backtest.abc.entryalgo_abc import entryalgo_abc
 import pandas as pd
 
+# --
+# --
+# --
+def def_aggr(a_all_buylist):
+	all_buylist = []
+	for buylist in a_all_buylist:
+		all_buylist = concat_lists(all_buylist,buylist)
+	return all_buylist
 # --
 # --
 # --
@@ -12,6 +20,8 @@ class entryalgo_collab(entryalgo_abc):
 		self.__opt = opt
 		self.__keys = [ x for x in self.__opt['objs'] if(not x.startswith("__")) ]
 		self.__algos = { key:None for key in set(self.__keys) }
+		self.__aggregator = default_val(self.__opt.get('aggregator'),def_aggr)
+		# -- DEBUG -- print(self.__aggregator)
 
 	def link(self,linker):
 		for key in self.__keys:
@@ -44,28 +54,23 @@ class entryalgo_collab(entryalgo_abc):
 				return msg
 		return None
 
-	# --
-	# 1,3,5,2,4,6 -- R1k=35x,S500=65x,N100=116x
-	# 1,2,3,4,5,6 -- R1k=65x,S500=55x,N100=123x
-	# !! the first sequence makes more sense, 
-	# !! because it eliminates all unwanted symbols first
-	# !! the poor performance of R1k is a flute, if mapos +/-1
-	# --
 	def buy_list_on(self,dt,bars,universe):
 		all_signals = []
 		all_buylist = []
 		for key in self.__keys:
 			algo = self.__algos[key]
 			(signals, buylist) = algo.buy_list_on(dt,bars,universe)
-			all_buylist = concat_lists(all_buylist, buylist)
+			all_buylist.append(buylist)
 			all_signals.append(signals)
+		all_buylist = self.__aggregator(all_buylist)
 		combined_buylist = pd.Index(all_buylist)
 		combined_signals = {}
 		for symbol in combined_buylist:
 			sym_signals = []
 			for signal in all_signals:
 				if(symbol in signal):
-					sym_signals = [*sym_signals, *signal[symbol]]
+					new_signal = signal[symbol]
+					sym_signals = [*sym_signals, new_signal]
 			combined_signals[symbol] = sym_signals
 		return (combined_signals, combined_buylist)
 
